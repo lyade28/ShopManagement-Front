@@ -1,0 +1,91 @@
+<div class="inventory-detail-container fade-in" *ngIf="item">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a routerLink="/inventory">Stock</a>
+        <span>/</span>
+        <span>{{ item.product_name }}</span>
+      </div>
+      <h1>{{ item.product_name }}</h1>
+      <p class="subtitle">{{ item.shop_name || 'Boutique' }}</p>
+    </div>
+    <div class="header-actions">
+      <a [routerLink]="['/inventory/adjust', item.id]" class="btn btn-primary">
+        <i class="bi bi-sliders"></i>
+        Ajuster le stock
+      </a>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <!-- Informations principales -->
+    <div class="detail-card card">
+      <h3 class="card-title">Informations principales</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Produit</span>
+          <span class="info-value">{{ item.product_name }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Boutique</span>
+          <span class="info-value">{{ item.shop_name || 'N/A' }}</span>
+        </div>
+        <div class="stock-highlight">
+          <div class="stock-display-large">
+            <span class="info-value large" [class.low]="item.is_low_stock" [class.out]="item.quantity === 0">
+              {{ item.quantity }}
+            </span>
+            <span class="stock-unit-large">unités</span>
+          </div>
+          <div class="stock-bar-large">
+            <div class="stock-bar-fill-large" [style.width.%]="getStockPercentage()"></div>
+          </div>
+          <div class="stock-status">
+            <span class="status-badge" [class.low]="item.is_low_stock" [class.out]="item.quantity === 0">
+              {{ getStockStatus() }}
+            </span>
+          </div>
+        </div>
+        <div class="info-item" *ngIf="item.min_quantity">
+          <span class="info-label">Stock minimum</span>
+          <span class="info-value">{{ item.min_quantity }} unités</span>
+        </div>
+        <div class="info-item" *ngIf="item.max_quantity">
+          <span class="info-label">Stock maximum</span>
+          <span class="info-value">{{ item.max_quantity }} unités</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historique des mouvements -->
+    <div class="detail-card card">
+      <h3 class="card-title">Historique des mouvements</h3>
+      <div class="movements-list" *ngIf="movements.length > 0">
+        <div *ngFor="let movement of movements" class="movement-item">
+          <div class="movement-icon" [class]="getMovementTypeClass(movement.movement_type)">
+            <i class="bi" [class.bi-arrow-down-circle]="movement.movement_type === 'entry'" [class.bi-arrow-up-circle]="movement.movement_type === 'exit'" [class.bi-arrow-left-right]="movement.movement_type === 'adjustment'"></i>
+          </div>
+          <div class="movement-info">
+            <div class="movement-header">
+              <span class="movement-type-label" [class]="getMovementTypeClass(movement.movement_type)">
+                {{ getMovementTypeLabel(movement.movement_type) }}
+              </span>
+              <span class="movement-quantity" [class.positive]="movement.quantity > 0" [class.negative]="movement.quantity < 0">
+                {{ movement.quantity > 0 ? '+' : '' }}{{ movement.quantity }}
+              </span>
+            </div>
+            <div class="movement-details">
+              <span class="movement-reason">{{ movement.reason }}</span>
+              <span class="movement-date">{{ movement.created_at | date:'short' }}</span>
+              <span class="movement-user" *ngIf="movement.user_name">par {{ movement.user_name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="movements.length === 0" class="empty-movements">
+        <i class="bi bi-inbox" style="font-size: 48px; opacity: 0.3;"></i>
+        <p>Aucun mouvement enregistré</p>
+      </div>
+    </div>
+  </div>
+</div>

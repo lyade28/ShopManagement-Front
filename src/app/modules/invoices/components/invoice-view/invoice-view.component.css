@@ -1,0 +1,179 @@
+.invoice-view-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.invoice-company h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.invoice-company p {
+  color: var(--text-muted);
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+}
+
+.invoice-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 100px;
+}
+
+.info-value {
+  color: var(--text-primary);
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.status-badge.paid {
+  background-color: var(--success-light);
+  color: var(--success);
+}
+
+.status-badge.pending {
+  background-color: var(--warning-light);
+  color: var(--warning);
+}
+
+.invoice-client {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.invoice-client h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.client-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0.5rem 0;
+}
+
+.invoice-items {
+  margin-bottom: 2rem;
+}
+
+.invoice-items table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.invoice-items thead {
+  background-color: var(--bg-secondary);
+}
+
+.invoice-items th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.invoice-items td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.invoice-items tfoot {
+  background-color: var(--bg-secondary);
+}
+
+.invoice-items tfoot td {
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.total-label {
+  text-align: right;
+  font-size: 1.125rem;
+}
+
+.total-amount {
+  font-size: 1.25rem;
+  color: var(--primary);
+}
+
+.item-total {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.invoice-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--border-color);
+}
+
+.invoice-shop p,
+.invoice-notes p {
+  color: var(--text-muted);
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.invoice-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  color: var(--text-muted);
+}
+
+@media print {
+  .invoice-actions {
+    display: none;
+  }
+  
+  .invoice-view-container {
+    padding: 0;
+  }
+}

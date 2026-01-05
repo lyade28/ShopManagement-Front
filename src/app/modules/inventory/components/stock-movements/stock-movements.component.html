@@ -1,0 +1,181 @@
+<div class="stock-movements-container fade-in">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a routerLink="/inventory/list">Stock</a>
+        <span>/</span>
+        <span>Mouvements</span>
+      </div>
+      <h1>Historique des mouvements de stock</h1>
+      <p class="subtitle">Suivez tous les mouvements de votre inventaire</p>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card card">
+      <div class="stat-icon total">
+        <i class="bi bi-arrow-left-right"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ totalMovements }}</div>
+        <div class="stat-label">Total mouvements</div>
+      </div>
+    </div>
+
+    <div class="stat-card card">
+      <div class="stat-icon entry">
+        <i class="bi bi-arrow-down-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ entryCount }}</div>
+        <div class="stat-label">Entrées ({{ totalEntryQuantity }})</div>
+      </div>
+    </div>
+
+    <div class="stat-card card">
+      <div class="stat-icon exit">
+        <i class="bi bi-arrow-up-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ exitCount }}</div>
+        <div class="stat-label">Sorties ({{ totalExitQuantity }})</div>
+      </div>
+    </div>
+
+    <div class="stat-card card">
+      <div class="stat-icon adjustment">
+        <i class="bi bi-arrow-repeat"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ adjustmentCount }}</div>
+        <div class="stat-label">Ajustements</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card card">
+    <div class="filters-grid">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input 
+          type="text" 
+          placeholder="Rechercher un produit, raison, référence..." 
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="search-input"
+        />
+      </div>
+
+      <select 
+        [(ngModel)]="selectedShop" 
+        (change)="onShopChange()"
+        class="filter-select"
+      >
+        <option value="all">Toutes les boutiques</option>
+        <option *ngFor="let shop of shops" [value]="shop.id">{{ shop.name }}</option>
+      </select>
+
+      <select 
+        [(ngModel)]="typeFilter" 
+        (change)="onTypeFilterChange()"
+        class="filter-select"
+      >
+        <option value="all">Tous les types</option>
+        <option value="entry">Entrées</option>
+        <option value="exit">Sorties</option>
+        <option value="adjustment">Ajustements</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Movements List -->
+  <div *ngIf="!isLoading && filteredMovements.length > 0" class="movements-list">
+    <div 
+      *ngFor="let movement of filteredMovements" 
+      class="movement-card card"
+      [class.entry]="movement.movement_type === 'entry'"
+      [class.exit]="movement.movement_type === 'exit'"
+      [class.adjustment]="movement.movement_type === 'adjustment'"
+    >
+      <div class="movement-header">
+        <div class="movement-type-badge" [class]="'type-' + movement.movement_type">
+          <i class="bi" 
+             [class.bi-arrow-down-circle-fill]="movement.movement_type === 'entry'"
+             [class.bi-arrow-up-circle-fill]="movement.movement_type === 'exit'"
+             [class.bi-arrow-repeat]="movement.movement_type === 'adjustment'">
+          </i>
+          {{ getMovementTypeLabel(movement.movement_type) }}
+        </div>
+        <div class="movement-date">
+          <i class="bi bi-calendar3"></i>
+          {{ movement.created_at | date:'short' }}
+        </div>
+      </div>
+
+      <div class="movement-body">
+        <div class="movement-product">
+          <i class="bi bi-box-seam"></i>
+          <strong>{{ movement.product_name }}</strong>
+        </div>
+
+        <div class="movement-details">
+          <div class="detail-item">
+            <i class="bi bi-shop"></i>
+            <span class="detail-label">Boutique:</span>
+            <span class="detail-value">{{ movement.shop_name }}</span>
+          </div>
+
+          <div class="detail-item">
+            <i class="bi bi-hash"></i>
+            <span class="detail-label">Quantité:</span>
+            <span class="detail-value quantity" 
+                  [class.positive]="movement.quantity > 0" 
+                  [class.negative]="movement.quantity < 0">
+              {{ movement.quantity > 0 ? '+' : '' }}{{ movement.quantity }}
+            </span>
+          </div>
+
+          <div class="detail-item" *ngIf="movement.reason">
+            <i class="bi bi-info-circle"></i>
+            <span class="detail-label">Raison:</span>
+            <span class="detail-value">{{ movement.reason }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="movement.user_name">
+            <i class="bi bi-person"></i>
+            <span class="detail-label">Utilisateur:</span>
+            <span class="detail-value">{{ movement.user_name }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="movement.reference">
+            <i class="bi bi-tag"></i>
+            <span class="detail-label">Référence:</span>
+            <span class="detail-value">{{ movement.reference }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des mouvements...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredMovements.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="bi bi-box-seam"></i>
+    </div>
+    <h3>Aucun mouvement trouvé</h3>
+    <p *ngIf="searchTerm || typeFilter !== 'all' || selectedShop !== 'all'">
+      Aucun mouvement ne correspond à vos critères de recherche.
+    </p>
+    <p *ngIf="!searchTerm && typeFilter === 'all' && selectedShop === 'all'">
+      Aucun mouvement de stock enregistré pour le moment.
+    </p>
+  </div>
+</div>

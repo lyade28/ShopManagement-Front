@@ -1,0 +1,62 @@
+<div class="shop-detail-container fade-in" *ngIf="shop">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a routerLink="/shops">Boutiques</a>
+        <span>/</span>
+        <span>{{ shop.name }}</span>
+      </div>
+      <h1>{{ shop.name }}</h1>
+      <p class="subtitle">
+        <span class="shop-status" [class.active]="shop.is_active" [class.inactive]="!shop.is_active">
+          {{ shop.is_active ? 'Active' : 'Inactive' }}
+        </span>
+      </p>
+    </div>
+    <div class="header-actions">
+      <a [routerLink]="['/shops/edit', shop.id]" class="btn btn-primary">
+        <i class="bi bi-pencil"></i>
+        Modifier
+      </a>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <!-- Informations principales -->
+    <div class="detail-card card">
+      <h3 class="card-title">Informations principales</h3>
+      <div class="info-grid">
+        <div class="info-item" *ngIf="shop.address">
+          <span class="info-label">Adresse</span>
+          <span class="info-value">{{ shop.address }}</span>
+        </div>
+        <div class="info-item" *ngIf="shop.phone">
+          <span class="info-label">Téléphone</span>
+          <span class="info-value">{{ shop.phone }}</span>
+        </div>
+        <div class="info-item" *ngIf="shop.email">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ shop.email }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Date de création</span>
+          <span class="info-value">{{ shop.created_at }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vendeurs -->
+    <div class="detail-card card" *ngIf="shop.sellers && shop.sellers.length > 0">
+      <h3 class="card-title">Vendeurs ({{ shop.sellers.length }})</h3>
+      <div class="sellers-list">
+        <div *ngFor="let seller of shop.sellers" class="seller-item">
+          <div class="seller-avatar">{{ seller.name.charAt(0) }}</div>
+          <div class="seller-info">
+            <div class="seller-name">{{ seller.name }}</div>
+            <div class="seller-role">{{ seller.role }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

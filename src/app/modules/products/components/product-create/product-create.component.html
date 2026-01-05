@@ -1,0 +1,346 @@
+<div class="product-form-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Créer un produit</h1>
+      <p class="subtitle">Ajoutez un nouveau produit à votre catalogue</p>
+    </div>
+    <button (click)="cancel()" class="btn btn-secondary">
+      <i class="bi bi-x-lg"></i>
+      Annuler
+    </button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="product-form card">
+    <div class="form-grid">
+      <!-- Informations de base -->
+      <div class="form-section">
+        <h3 class="section-title">Informations de base</h3>
+        
+        <div class="form-group">
+          <label for="name">Nom du produit *</label>
+          <input 
+            type="text" 
+            id="name" 
+            [(ngModel)]="product.name" 
+            name="name"
+            class="form-input"
+            placeholder="Ex: Élastiques 5mm"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="sku">Code produit (SKU)</label>
+          <input 
+            type="text" 
+            id="sku" 
+            [(ngModel)]="product.sku" 
+            name="sku"
+            class="form-input"
+            placeholder="Ex: ELAS-001"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="category">Catégorie *</label>
+            <select 
+              id="category" 
+              [ngModel]="product.category" 
+              (ngModelChange)="product.category = +$event; onCategoryChange()"
+              name="category"
+              class="form-select"
+              required
+            >
+              <option [value]="null">Sélectionner une catégorie</option>
+              <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="unit">Unité de mesure *</label>
+            <select 
+              id="unit" 
+              [(ngModel)]="product.unit" 
+              name="unit"
+              class="form-select"
+              required
+            >
+              <option *ngFor="let unit of units" [value]="unit.value">{{ unit.label }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attributs spécifiques à la catégorie -->
+      <div class="form-section" *ngIf="product.category && product.category > 0">
+        <h3 class="section-title">Caractéristiques spécifiques</h3>
+        
+        <!-- Indicateur de chargement -->
+        <div *ngIf="isLoadingAttributes" class="form-hint">
+          Chargement des attributs...
+        </div>
+        
+        <!-- Message si aucun attribut -->
+        <p *ngIf="!isLoadingAttributes && selectedCategoryAttributes.length === 0" class="form-hint">
+          Aucun attribut défini pour cette catégorie. Vous pouvez en ajouter dans les paramètres.
+        </p>
+        
+        <!-- Grille des attributs -->
+        <div class="attributes-grid" *ngIf="!isLoadingAttributes && selectedCategoryAttributes && selectedCategoryAttributes.length > 0">
+          <div class="form-group" *ngFor="let attr of selectedCategoryAttributes">
+            <label [for]="attr.name">
+              {{ attr.label }}
+              <span *ngIf="attr.required" class="required-star">*</span>
+            </label>
+            
+            <!-- Input text -->
+            <input 
+              *ngIf="attr.type === 'text'"
+              type="text"
+              [id]="attr.name"
+              [value]="getAttributeValue(attr.name)"
+              (input)="setAttributeValue(attr.name, $any($event.target).value)"
+              class="form-input"
+              [placeholder]="attr.placeholder || ''"
+              [required]="attr.required"
+            />
+            
+            <!-- Input number -->
+            <input 
+              *ngIf="attr.type === 'number'"
+              type="number"
+              [id]="attr.name"
+              [value]="getAttributeValue(attr.name)"
+              (input)="setAttributeValue(attr.name, $any($event.target).value)"
+              class="form-input"
+              [placeholder]="attr.placeholder || ''"
+              [required]="attr.required"
+              min="0"
+              step="0.01"
+            />
+            
+            <!-- Select -->
+            <select 
+              *ngIf="attr.type === 'select'"
+              [id]="attr.name"
+              [value]="getAttributeValue(attr.name)"
+              (change)="setAttributeValue(attr.name, $any($event.target).value)"
+              class="form-select"
+              [required]="attr.required"
+            >
+              <option value="">Sélectionner...</option>
+              <option *ngFor="let option of attr.options" [value]="option">{{ option }}</option>
+            </select>
+            
+            <!-- Textarea -->
+            <textarea 
+              *ngIf="attr.type === 'textarea'"
+              [id]="attr.name"
+              [value]="getAttributeValue(attr.name)"
+              (input)="setAttributeValue(attr.name, $any($event.target).value)"
+              class="form-textarea"
+              [placeholder]="attr.placeholder || ''"
+              [required]="attr.required"
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prix et stock -->
+      <div class="form-section">
+        <h3 class="section-title">Prix et stock initial <span class="optional-badge">(optionnel)</span></h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="purchase_price">Prix d'achat (FCFA) *</label>
+            <input 
+              type="number" 
+              id="purchase_price" 
+              [(ngModel)]="product.purchase_price" 
+              name="purchase_price"
+              class="form-input"
+              placeholder="0"
+              min="0"
+              step="1"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="selling_price">Prix de vente (FCFA) *</label>
+            <input 
+              type="number" 
+              id="selling_price" 
+              [(ngModel)]="product.selling_price" 
+              name="selling_price"
+              class="form-input"
+              placeholder="0"
+              min="0"
+              step="1"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="stock-info-box">
+          <div class="info-icon">
+            <i class="bi bi-info-circle"></i>
+          </div>
+          <div class="info-content">
+            <strong>Stock initial (optionnel)</strong>
+            <p>Si vous renseignez une quantité, un inventaire sera créé automatiquement pour votre boutique actuelle. Vous pourrez gérer le stock de toutes les boutiques dans le module <strong>Inventaire</strong>.</p>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="showShopSelection && shops.length > 0">
+          <label for="shop">Boutique pour le stock initial *</label>
+          <select 
+            id="shop" 
+            [(ngModel)]="shopId" 
+            name="shop"
+            class="form-select"
+            [required]="initialQuantity > 0"
+          >
+            <option [value]="undefined">Sélectionner une boutique</option>
+            <option *ngFor="let shop of shops" [value]="shop.id">{{ shop.name }}</option>
+          </select>
+          <small class="form-hint" *ngIf="initialQuantity > 0">Sélectionnez la boutique où ajouter le stock initial.</small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="quantity">Quantité initiale en stock</label>
+            <input 
+              type="number" 
+              id="quantity" 
+              [(ngModel)]="initialQuantity" 
+              name="quantity"
+              class="form-input"
+              placeholder="0"
+              min="0"
+              step="1"
+            />
+            <small class="form-hint">Laisser vide si vous n'avez pas encore de stock. Vous pourrez l'ajouter plus tard dans le module Inventaire.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="min_quantity">Quantité minimale (seuil d'alerte)</label>
+            <input 
+              type="number" 
+              id="min_quantity" 
+              [(ngModel)]="minQuantity" 
+              name="min_quantity"
+              class="form-input"
+              placeholder="0"
+              min="0"
+              step="1"
+            />
+            <small class="form-hint">Seuil d'alerte pour stock faible. Une alerte sera déclenchée si le stock descend en dessous de cette valeur.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-section full-width">
+        <h3 class="section-title">Description</h3>
+        
+        <div class="form-group">
+          <label for="description">Description du produit</label>
+          <textarea 
+            id="description" 
+            [(ngModel)]="product.description" 
+            name="description"
+            class="form-textarea"
+            rows="4"
+            placeholder="Décrivez le produit..."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Statut -->
+      <div class="form-section">
+        <h3 class="section-title">Statut</h3>
+        
+        <div class="form-group">
+          <label class="radio-group">
+            <input 
+              type="radio" 
+              [(ngModel)]="product.is_active" 
+              name="status"
+              [value]="true"
+              checked
+            />
+            <span>Actif</span>
+          </label>
+          <label class="radio-group">
+            <input 
+              type="radio" 
+              [(ngModel)]="product.is_active" 
+              name="status"
+              [value]="false"
+            />
+            <span>Inactif</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" (click)="cancel()" class="btn btn-secondary">Annuler</button>
+      <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()">
+        <i class="bi bi-check-lg"></i>
+        Créer le produit
+      </button>
+    </div>
+  </form>
+
+  <!-- Alerte de doublon -->
+  <div class="duplicate-alert-overlay" *ngIf="showDuplicateAlert" (click)="cancelDuplicate()">
+    <div class="duplicate-alert card" (click)="$event.stopPropagation()">
+      <div class="alert-header">
+        <div class="alert-icon warning">
+          <i class="bi bi-exclamation-triangle" style="font-size: 32px;"></i>
+        </div>
+        <h3>Produit similaire détecté</h3>
+      </div>
+      
+      <div class="alert-content">
+        <p>Un produit avec les mêmes caractéristiques existe déjà :</p>
+        
+        <div class="existing-product-info">
+          <div class="product-name-large">{{ duplicateProduct?.name }}</div>
+          <div class="product-details">
+            <div class="detail-row">
+              <span class="detail-label">Stock actuel :</span>
+              <span class="detail-value">- {{ duplicateProduct?.unit }}</span>
+            </div>
+            <div class="detail-row" *ngIf="duplicateProduct?.attributes">
+              <span class="detail-label">Caractéristiques :</span>
+              <span class="detail-value">
+                <span *ngFor="let key of getAttributeKeys(duplicateProduct?.attributes)" class="attribute-chip">
+                  {{ getAttributeLabel(key) }}: {{ duplicateProduct?.attributes?.[key] }}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="new-quantity-info">
+          <p>Quantité à ajouter : <strong>{{ initialQuantity }} {{ product.unit }}</strong></p>
+          <p class="new-total">Nouveau stock total : <strong>{{ initialQuantity }} {{ product.unit }}</strong></p>
+        </div>
+      </div>
+
+      <div class="alert-actions">
+        <button (click)="cancelDuplicate()" class="btn btn-secondary">Annuler</button>
+        <button (click)="proceedWithNewProduct()" class="btn btn-secondary">Créer quand même</button>
+        <button (click)="updateExistingProduct()" class="btn btn-primary">
+          <i class="bi bi-check-lg"></i>
+          Mettre à jour le stock
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,93 @@
+<header class="header">
+  <div class="header-left">
+    <button class="menu-toggle" (click)="toggleSidebar.emit()">
+      <i class="bi bi-list"></i>
+    </button>
+  </div>
+
+  <div class="header-right">
+    <div class="header-actions">
+      <button class="icon-btn" (click)="toggleTheme()" title="Changer de thème">
+        <i class="bi" [class.bi-sun]="themeService.currentTheme() === 'dark'" [class.bi-moon]="themeService.currentTheme() === 'light'"></i>
+      </button>
+
+      <div class="notifications-dropdown">
+        <button class="icon-btn" (click)="toggleNotifications()" title="Notifications">
+          <i class="bi bi-bell"></i>
+          <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+        </button>
+        
+        <div class="notifications-panel" *ngIf="showNotifications">
+          <div class="notifications-header">
+            <h3>Notifications</h3>
+            <button 
+              *ngIf="unreadCount > 0" 
+              (click)="markAllAsRead()" 
+              class="btn-link-small">
+              Tout marquer comme lu
+            </button>
+          </div>
+          
+          <div class="notifications-list" *ngIf="notifications.length > 0">
+            <div 
+              *ngFor="let notification of notifications" 
+              class="notification-item"
+              [class.unread]="!notification.read"
+              (click)="navigateToNotification(notification)">
+              <div class="notification-icon" [class]="'icon-' + notification.type">
+                <i class="bi" 
+                  [class.bi-exclamation-triangle]="notification.type === 'low_stock'"
+                  [class.bi-cart-check]="notification.type === 'new_sale'"
+                  [class.bi-info-circle]="notification.type === 'info'"
+                  [class.bi-gear]="notification.type === 'system'"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-title">{{ notification.title }}</div>
+                <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-time">{{ formatTime(notification.created_at) }}</div>
+              </div>
+              <button 
+                class="notification-close"
+                (click)="removeNotification(notification, $event)"
+                title="Supprimer">
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="notifications-empty" *ngIf="notifications.length === 0">
+            <i class="bi bi-bell-slash"></i>
+            <p>Aucune notification</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="user-menu" *ngIf="authService.isAuthenticated()">
+      <button class="user-menu-trigger" (click)="toggleUserMenu()">
+        <div class="user-avatar">{{ userInitials }}</div>
+        <div class="user-info" *ngIf="authService.currentUser()">
+          <div class="user-name">{{ userName }}</div>
+          <div class="user-role">{{ userRole }}</div>
+        </div>
+        <i class="bi bi-chevron-down"></i>
+      </button>
+
+      <div class="user-menu-dropdown" *ngIf="showUserMenu">
+        <a routerLink="/users/detail/{{ authService.currentUser()?.id }}" class="dropdown-item">
+          <i class="bi bi-person"></i>
+          Mon profil
+        </a>
+        <a routerLink="/settings" class="dropdown-item">
+          <i class="bi bi-gear"></i>
+          Paramètres
+        </a>
+        <div class="dropdown-divider"></div>
+        <button (click)="logout()" class="dropdown-item logout">
+          <i class="bi bi-box-arrow-right"></i>
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  </div>
+</header>

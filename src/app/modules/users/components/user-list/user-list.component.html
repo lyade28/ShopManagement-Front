@@ -1,0 +1,125 @@
+<div class="user-list-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Gestion des Utilisateurs</h1>
+      <p class="subtitle">Gérez les utilisateurs et leurs rôles</p>
+    </div>
+    <a routerLink="/users/create" class="btn btn-primary">
+      <i class="bi bi-plus-lg"></i>
+      Nouvel utilisateur
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card card">
+    <div class="filters-grid">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input 
+          type="text" 
+          placeholder="Rechercher un utilisateur..." 
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="search-input"
+        />
+      </div>
+      
+      <select 
+        [(ngModel)]="roleFilter" 
+        (change)="onRoleFilterChange()"
+        class="filter-select"
+      >
+        <option value="all">Tous les rôles</option>
+        <option value="admin">Administrateurs</option>
+        <option value="seller">Vendeurs</option>
+      </select>
+
+      <select 
+        [(ngModel)]="statusFilter" 
+        (change)="onStatusFilterChange()"
+        class="filter-select"
+      >
+        <option value="all">Tous les statuts</option>
+        <option value="active">Actifs</option>
+        <option value="inactive">Inactifs</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="table-card card">
+    <div class="table-header">
+      <h3>Liste des utilisateurs ({{ totalItems }})</h3>
+    </div>
+    
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Boutique</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of displayedUsers" class="user-row">
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar">{{ user.first_name.charAt(0) }}{{ user.last_name.charAt(0) }}</div>
+                <div class="user-info">
+                  <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+                  <div class="user-username">{{ '@' + user.username }}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span class="role-badge" [class.admin]="user.role === 'admin'" [class.seller]="user.role === 'seller'">
+                {{ user.role === 'admin' ? 'Administrateur' : 'Vendeur' }}
+              </span>
+            </td>
+            <td>{{ user.shop_name || 'N/A' }}</td>
+            <td>
+              <span class="status-badge" [class.active]="user.is_active" [class.inactive]="!user.is_active">
+                {{ user.is_active ? 'Actif' : 'Inactif' }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a [routerLink]="['/users/detail', user.id]" class="action-btn view" title="Voir détails">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a [routerLink]="['/users/edit', user.id]" class="action-btn edit" title="Modifier">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <button (click)="toggleUserStatus(user)" class="action-btn status" [title]="user.is_active ? 'Désactiver' : 'Activer'">
+                  <i class="bi" [class.bi-toggle-on]="user.is_active" [class.bi-toggle-off]="!user.is_active"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div *ngIf="displayedUsers.length === 0 && !isLoading" class="empty-state">
+        <i class="bi bi-people" style="font-size: 64px; opacity: 0.3;"></i>
+        <p>Aucun utilisateur trouvé</p>
+        <a routerLink="/users/create" class="btn btn-primary">Créer un utilisateur</a>
+      </div>
+    </div>
+    
+    <!-- Pagination -->
+    <app-pagination
+      *ngIf="totalItems > 0"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      [pageSize]="pageSize"
+      [totalItems]="totalItems"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)">
+    </app-pagination>
+  </div>
+</div>

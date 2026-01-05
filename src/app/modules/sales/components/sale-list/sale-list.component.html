@@ -1,0 +1,41 @@
+<div class="sale-list-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Liste des Ventes</h1>
+      <p class="subtitle">Historique de toutes les ventes</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card card">
+    <div class="filters-grid">
+      <div class="search-box">
+        <i class="bi bi-eye"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="displayedSales.length === 0 && !isLoading">
+      <i class="bi bi-box-seam"></i>
+      <p>Aucune vente trouvée</p>
+    </div>
+  </div>
+  
+  <!-- Pagination -->
+  <app-pagination
+    *ngIf="totalItems > 0"
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [totalItems]="totalItems"
+    (pageChange)="onPageChange($event)"
+    (pageSizeChange)="onPageSizeChange($event)">
+  </app-pagination>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <p>Chargement des ventes...</p>
+  </div>
+</div>

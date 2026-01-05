@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shop-management-frontend
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+      - "${FRONTEND_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    environment:
+      - BACKEND_URL=${BACKEND_URL:-http://backend:8000}
+    depends_on:
+      - backend
+    networks:
+      - shop-network
+    restart: unless-stopped
+
+  backend:
+    # Remplacez cette section par la configuration de votre backend Django
+    # Exemple de configuration:
+    image: your-backend-image:latest
+    container_name: shop-management-backend
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      # Ajoutez vos autres variables d'environnement ici
+    volumes:
+      - ./backend_static:/app/staticfiles
+      - ./backend_media:/app/media
+    networks:
+      - shop-network
+    restart: unless-stopped
+
+networks:
+  shop-network:
+    driver: bridge
+

@@ -1,0 +1,104 @@
+<div class="invoice-detail-container fade-in" *ngIf="invoice">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a routerLink="/invoices">Factures</a>
+        <span>/</span>
+        <span>{{ invoice.invoice_number }}</span>
+      </div>
+      <h1>{{ invoice.invoice_number }}</h1>
+      <p class="subtitle">Facture du {{ invoice.issue_date }}</p>
+    </div>
+    <div class="header-actions">
+      <button (click)="downloadPdf()" class="btn btn-primary">
+        <i class="bi bi-download"></i>
+        Télécharger PDF
+      </button>
+      <button (click)="printInvoice()" class="btn btn-secondary">
+        <i class="bi bi-printer"></i>
+        Imprimer
+      </button>
+    </div>
+  </div>
+
+  <div class="invoice-card card">
+    <!-- Invoice Header -->
+    <div class="invoice-header">
+      <div class="invoice-company">
+        <h2>Votre Entreprise</h2>
+        <p>123 Rue de la Mercerie</p>
+        <p>Dakar, Sénégal</p>
+        <p>Tél: +221 77 123 45 67</p>
+      </div>
+      <div class="invoice-info">
+        <div class="info-row">
+          <span class="info-label">N° Facture:</span>
+          <span class="info-value">{{ invoice.invoice_number }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Date:</span>
+          <span class="info-value">{{ invoice.issue_date }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Statut:</span>
+          <span class="status-badge" [class.paid]="invoice.status === 'paid'" [class.pending]="invoice.status === 'pending'">
+            {{ invoice.status === 'paid' ? 'Payée' : 'En attente' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client Info -->
+    <div class="invoice-client">
+      <h3>Client</h3>
+      <p class="client-name">{{ invoice.customer_name }}</p>
+    </div>
+
+    <!-- Invoice Items -->
+    <div class="invoice-items">
+      <table>
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Quantité</th>
+            <th>Prix unitaire</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of invoice.items">
+            <td>{{ item.product_name || item.name || 'Produit' }}</td>
+            <td>{{ item.quantity }} {{ item.unit || '' }}</td>
+            <td>{{ item.unit_price | currencyFormat }}</td>
+            <td class="item-total">{{ item.subtotal || item.total | currencyFormat }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="subtotal-row">
+            <td colspan="3" class="total-label">Sous-total</td>
+            <td class="total-amount">{{ invoice.subtotal | currencyFormat }}</td>
+          </tr>
+          <tr class="tax-row" *ngIf="invoice.tax && invoice.tax > 0">
+            <td colspan="3" class="total-label">TVA (18%)</td>
+            <td class="total-amount">{{ invoice.tax | currencyFormat }}</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="3" class="total-label">Total</td>
+            <td class="total-amount">{{ invoice.total | currencyFormat }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Invoice Footer -->
+    <div class="invoice-footer">
+      <div class="invoice-shop">
+        <p><strong>Boutique:</strong> {{ invoice.shop_name || 'N/A' }}</p>
+        <p><strong>Vendeur:</strong> {{ invoice.seller_info?.name || 'N/A' }}</p>
+      </div>
+      <div class="invoice-notes">
+        <p>Merci de votre achat !</p>
+      </div>
+    </div>
+  </div>
+</div>

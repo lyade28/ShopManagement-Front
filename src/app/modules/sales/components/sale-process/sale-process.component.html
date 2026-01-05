@@ -1,0 +1,201 @@
+<div class="sale-process-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Nouvelle Vente</h1>
+      <p class="subtitle" *ngIf="session">
+        Session #{{ session.session_number }} - {{ session.shop_name || 'Boutique' }}
+      </p>
+      <p class="subtitle" *ngIf="!session">
+        Session #{{ sessionId }}
+      </p>
+      <div class="offline-indicator" *ngIf="!isOnline">
+        <i class="bi bi-wifi-off"></i>
+        <span>Mode hors ligne - Les ventes seront synchronisées automatiquement</span>
+      </div>
+    </div>
+    <button (click)="cancel()" class="btn btn-secondary">
+      <i class="bi bi-x-lg"></i>
+      Annuler
+    </button>
+  </div>
+
+  <div class="sale-layout">
+    <!-- Left: Product Selection -->
+    <div class="product-selection card">
+      <h3 class="section-title">Sélectionner un produit</h3>
+      
+      <div class="products-list">
+        <div 
+          *ngFor="let product of availableProducts" 
+          class="product-item"
+          [class.selected]="selectedProduct && selectedProduct.id === product.id"
+          [class.out-of-stock]="(product.stock || 0) === 0"
+          (click)="onProductSelect(product)"
+        >
+          <div class="product-info">
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-details">
+              <span class="product-price">{{ product.selling_price | currencyFormat }}</span>
+              <span class="product-stock" [class.low]="(product.stock || 0) < 10" [class.out]="(product.stock || 0) === 0">
+                Stock: {{ product.stock || 0 }} {{ product.unit }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="add-to-cart-section" *ngIf="selectedProduct">
+        <div class="form-group">
+          <label>Quantité</label>
+          <div class="quantity-controls">
+            <button type="button" (click)="decreaseQuantity()" class="qty-btn">-</button>
+            <input 
+              type="number" 
+              [(ngModel)]="quantity" 
+              min="1" 
+              [max]="selectedProduct.stock || 0"
+              class="qty-input"
+            />
+            <button type="button" (click)="increaseQuantity()" class="qty-btn">+</button>
+          </div>
+          <small class="form-hint">Stock disponible: {{ selectedProduct.stock || 0 }} {{ selectedProduct.unit || '' }}</small>
+        </div>
+        <button (click)="addToCart()" class="btn btn-primary btn-block" [disabled]="quantity > (selectedProduct.stock || 0)">
+          <i class="bi bi-plus-lg"></i>
+          Ajouter au panier
+        </button>
+      </div>
+    </div>
+
+    <!-- Right: Cart and Checkout -->
+    <div class="cart-section">
+      <div class="cart-card card">
+        <h3 class="section-title">Panier</h3>
+        
+        <div class="buyer-input">
+          <label for="buyerName">Nom du client *</label>
+          <input 
+            type="text" 
+            id="buyerName"
+            [(ngModel)]="buyerName"
+            class="form-input"
+            placeholder="Ex: Jean Dupont"
+          />
+        </div>
+
+        <div class="cart-items" *ngIf="cart.length > 0">
+          <div *ngFor="let item of cart; let i = index" class="cart-item">
+            <div class="cart-item-info">
+              <div class="cart-item-name">{{ item.product_name }}</div>
+              <div class="cart-item-details">
+                <input 
+                  type="number" 
+                  [(ngModel)]="item.quantity"
+                  (change)="updateCartItem(item)"
+                  min="1"
+                  class="cart-qty-input"
+                />
+                <span class="cart-item-price">{{ item.unit_price | currencyFormat }}</span>
+              </div>
+            </div>
+            <div class="cart-item-total">
+              <span>{{ item.total | currencyFormat }}</span>
+              <button (click)="removeFromCart(i)" class="remove-btn" title="Retirer">
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cart-empty" *ngIf="cart.length === 0">
+          <i class="bi bi-cart" style="font-size: 48px; opacity: 0.3;"></i>
+          <p>Le panier est vide</p>
+        </div>
+
+        <!-- Discount Section -->
+        <div class="discount-section" *ngIf="cart.length > 0">
+          <div class="discount-header">
+            <label>Remise</label>
+            <button 
+              type="button" 
+              class="btn-link-small"
+              (click)="discountValue = 0; discountType = 'percentage'"
+              *ngIf="discountValue > 0">
+              <i class="bi bi-x"></i> Réinitialiser
+            </button>
+          </div>
+          <div class="discount-controls">
+            <select 
+              [(ngModel)]="discountType" 
+              class="discount-type-select"
+              (change)="onDiscountChange()">
+              <option value="percentage">%</option>
+              <option value="fixed">Montant fixe</option>
+            </select>
+            <input 
+              type="number" 
+              [(ngModel)]="discountValue" 
+              (input)="onDiscountChange()"
+              [min]="0"
+              [max]="discountType === 'percentage' ? 100 : getSubtotal()"
+              class="discount-input"
+              placeholder="0"
+            />
+          </div>
+          <div class="discount-preview" *ngIf="getDiscount() > 0">
+            <i class="bi bi-tag"></i>
+            <span>Remise: {{ getDiscount() | currencyFormat }}</span>
+          </div>
+        </div>
+
+        <div class="cart-total" *ngIf="cart.length > 0">
+          <div class="total-line">
+            <span>Sous-total</span>
+            <span class="total-amount">{{ getSubtotal() | currencyFormat }}</span>
+          </div>
+          <div class="total-line discount-line" *ngIf="getDiscount() > 0">
+            <span><i class="bi bi-tag"></i> Remise</span>
+            <span class="total-amount discount-amount">-{{ getDiscount() | currencyFormat }}</span>
+          </div>
+          <div class="total-line">
+            <span>Sous-total après remise</span>
+            <span class="total-amount">{{ getSubtotalAfterDiscount() | currencyFormat }}</span>
+          </div>
+          <div class="total-line">
+            <span>TVA (18%)</span>
+            <span class="total-amount">{{ getTax() | currencyFormat }}</span>
+          </div>
+          <div class="total-line total-final">
+            <span>Total</span>
+            <span class="total-amount">{{ getTotal() | currencyFormat }}</span>
+          </div>
+        </div>
+
+        <div class="payment-method" *ngIf="cart.length > 0">
+          <label for="paymentMethod">Méthode de paiement</label>
+          <select 
+            id="paymentMethod" 
+            [(ngModel)]="paymentMethod" 
+            class="form-select"
+          >
+            <option value="cash">Espèces</option>
+            <option value="card">Carte bancaire</option>
+            <option value="mobile">Mobile Money</option>
+            <option value="check">Chèque</option>
+          </select>
+        </div>
+
+        <button 
+          (click)="processSale()" 
+          class="btn btn-primary btn-block btn-large"
+          [disabled]="isLoading || cart.length === 0 || !buyerName.trim()"
+          [title]="cart.length === 0 ? 'Le panier est vide' : (!buyerName.trim() ? 'Veuillez saisir le nom du client' : 'Finaliser la vente')"
+        >
+          <i class="bi bi-check-lg"></i>
+          Finaliser la vente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

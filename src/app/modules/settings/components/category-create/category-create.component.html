@@ -1,0 +1,63 @@
+<div class="category-form-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Créer une catégorie</h1>
+      <p class="subtitle">Ajoutez une nouvelle catégorie de produits</p>
+    </div>
+    <button (click)="cancel()" class="btn btn-secondary">
+      <i class="bi bi-x-lg"></i>
+      Annuler
+    </button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="category-form card">
+    <div class="form-section">
+      <h3 class="section-title">Informations de la catégorie</h3>
+      
+      <div class="form-group">
+        <label for="name">Nom de la catégorie *</label>
+        <input 
+          type="text" 
+          id="name" 
+          [(ngModel)]="category.name" 
+          name="name"
+          class="form-input"
+          placeholder="Ex: Tissus, Élastiques, Fermetures..."
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea 
+          id="description" 
+          [(ngModel)]="category.description" 
+          name="description"
+          class="form-input"
+          rows="4"
+          placeholder="Décrivez cette catégorie..."
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-group">
+          <input 
+            type="checkbox" 
+            [(ngModel)]="category.is_active" 
+            name="is_active"
+          />
+          <span>Catégorie active</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" (click)="cancel()" class="btn btn-secondary">Annuler</button>
+      <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()">
+        <i class="bi bi-check-lg"></i>
+        Créer la catégorie
+      </button>
+    </div>
+  </form>
+</div>
+

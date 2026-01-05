@@ -1,0 +1,96 @@
+<div class="low-stock-alert-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Alertes de Stock</h1>
+      <p class="subtitle">Produits nécessitant une attention</p>
+    </div>
+    <button (click)="loadLowStockAlerts()" class="btn btn-secondary">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="currentColor"/>
+      </svg>
+      Actualiser
+    </button>
+  </div>
+
+  <!-- Out of Stock Section -->
+  <div class="alerts-section card" *ngIf="outOfStockItems.length > 0">
+    <div class="section-header critical">
+      <h2>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/>
+        </svg>
+        Rupture de Stock ({{ outOfStockItems.length }})
+      </h2>
+    </div>
+    <div class="alerts-list">
+      <div *ngFor="let item of outOfStockItems" class="alert-item critical">
+        <div class="alert-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="alert-info">
+          <div class="alert-product-name">{{ item.product_name }}</div>
+          <div class="alert-details">
+            <span class="alert-shop">{{ item.shop_name || 'Boutique' }}</span>
+            <span class="alert-stock">Stock: 0 / Min: {{ item.min_quantity || 0 }}</span>
+          </div>
+        </div>
+        <div class="alert-actions">
+          <a [routerLink]="['/inventory/adjust', item.id]" class="btn btn-sm btn-primary">
+            Réapprovisionner
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Low Stock Section -->
+  <div class="alerts-section card" *ngIf="lowStockItems.length > 0">
+    <div class="section-header warning">
+      <h2>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/>
+        </svg>
+        Stock Faible ({{ lowStockItems.length }})
+      </h2>
+    </div>
+    <div class="alerts-list">
+      <div *ngFor="let item of lowStockItems" class="alert-item warning">
+        <div class="alert-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="alert-info">
+          <div class="alert-product-name">{{ item.product_name }}</div>
+          <div class="alert-details">
+            <span class="alert-shop">{{ item.shop_name || 'Boutique' }}</span>
+            <span class="alert-stock">Stock: {{ item.quantity }} / Min: {{ item.min_quantity || 0 }}</span>
+          </div>
+          <div class="stock-bar">
+            <div class="stock-bar-fill" [style.width.%]="getStockPercentage(item)"></div>
+          </div>
+        </div>
+        <div class="alert-actions">
+          <a [routerLink]="['/inventory/adjust', item.id]" class="btn btn-sm btn-secondary">
+            Ajuster
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Alerts -->
+  <div class="no-alerts card" *ngIf="!isLoading && outOfStockItems.length === 0 && lowStockItems.length === 0">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" opacity="0.3">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+    </svg>
+    <h3>Aucune alerte</h3>
+    <p>Tous les produits sont en stock suffisant</p>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <p>Chargement des alertes...</p>
+  </div>
+</div>

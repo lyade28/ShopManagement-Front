@@ -1,0 +1,97 @@
+<div class="user-detail-container fade-in" *ngIf="user">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a routerLink="/users">Utilisateurs</a>
+        <span>/</span>
+        <span>{{ user.first_name }} {{ user.last_name }}</span>
+      </div>
+      <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+      <p class="subtitle">{{ '@' + user.username }}</p>
+    </div>
+    <div class="header-actions">
+      <a [routerLink]="['/users/edit', user.id]" class="btn btn-primary">
+        <i class="bi bi-pencil"></i>
+        Modifier
+      </a>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <!-- Informations principales -->
+    <div class="detail-card card">
+      <h3 class="card-title">Informations personnelles</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Nom complet</span>
+          <span class="info-value">{{ user.first_name }} {{ user.last_name }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ user.email }}</span>
+        </div>
+        <div class="info-item" *ngIf="user.phone">
+          <span class="info-label">Téléphone</span>
+          <span class="info-value">{{ user.phone }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Rôle</span>
+          <span [class]="getRoleClass(user.role)">{{ getRoleLabel(user.role) }}</span>
+        </div>
+        <div class="info-item" *ngIf="user.shop_name">
+          <span class="info-label">Boutique</span>
+          <span class="info-value">{{ user.shop_name }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Statut</span>
+          <span class="status-badge" [class.active]="user.is_active" [class.inactive]="!user.is_active">
+            {{ user.is_active ? 'Actif' : 'Inactif' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistiques (pour les vendeurs) -->
+    <div class="detail-card card" *ngIf="user.role === 'seller'">
+      <h3 class="card-title">Statistiques</h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">Ventes totales</span>
+          <span class="stat-value">{{ user.total_sales || 0 }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Chiffre d'affaires</span>
+          <span class="stat-value">{{ user.total_revenue || 0 | currencyFormat }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Dernière connexion</span>
+          <span class="stat-value">{{ user.last_login || 'Jamais' }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Membre depuis</span>
+          <span class="stat-value">{{ user.created_at || 'N/A' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informations de compte -->
+    <div class="detail-card card">
+      <h3 class="card-title">Informations de compte</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Nom d'utilisateur</span>
+          <span class="info-value">{{ user.username }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Date de création</span>
+          <span class="info-value">{{ user.created_at || 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Dernière connexion</span>
+          <span class="info-value">{{ user.last_login || 'Jamais' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

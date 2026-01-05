@@ -1,0 +1,168 @@
+<div class="inventory-adjust-container fade-in">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a routerLink="/inventory">Stock</a>
+        <span>/</span>
+        <span>Ajustement</span>
+      </div>
+      <h1>Ajuster le stock</h1>
+      <p class="subtitle">{{ productName }}</p>
+    </div>
+    <button (click)="cancel()" class="btn btn-secondary">
+      <i class="bi bi-x-lg"></i>
+      Annuler
+    </button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="adjust-form card">
+    <div class="form-section">
+      <h3 class="section-title">Informations actuelles</h3>
+      <div class="current-stock-info">
+        <div class="stock-display">
+          <span class="stock-label">Stock actuel</span>
+          <div class="stock-value-container">
+            <span class="stock-value">{{ currentStock }}</span>
+            <span class="stock-unit">unités</span>
+          </div>
+          <div class="stock-bar-preview">
+            <div class="stock-bar-fill-preview" [style.width.%]="getStockPercentage()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-title">Type d'ajustement</h3>
+      
+      <div class="radio-group">
+        <label class="radio-option">
+          <input 
+            type="radio" 
+            name="type" 
+            value="entry"
+            [(ngModel)]="adjustmentType"
+          />
+          <div class="radio-content">
+            <div class="radio-icon entry">
+              <i class="bi bi-plus-lg"></i>
+            </div>
+            <div>
+              <div class="radio-title">Entrée de stock</div>
+              <div class="radio-description">Ajouter des produits au stock</div>
+            </div>
+          </div>
+        </label>
+
+        <label class="radio-option">
+          <input 
+            type="radio" 
+            name="type" 
+            value="exit"
+            [(ngModel)]="adjustmentType"
+          />
+          <div class="radio-content">
+            <div class="radio-icon exit">
+              <i class="bi bi-dash-lg"></i>
+            </div>
+            <div>
+              <div class="radio-title">Sortie de stock</div>
+              <div class="radio-description">Retirer des produits du stock</div>
+            </div>
+          </div>
+        </label>
+
+        <label class="radio-option">
+          <input 
+            type="radio" 
+            name="type" 
+            value="adjustment"
+            [(ngModel)]="adjustmentType"
+          />
+          <div class="radio-content">
+            <div class="radio-icon adjustment">
+              <i class="bi bi-arrow-left-right"></i>
+            </div>
+            <div>
+              <div class="radio-title">Ajustement direct</div>
+              <div class="radio-description">Définir directement la nouvelle quantité</div>
+            </div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-title">Détails de l'ajustement</h3>
+      
+      <div class="form-group">
+        <label for="quantity">Quantité *</label>
+        <input 
+          type="number" 
+          id="quantity" 
+          [(ngModel)]="adjustment.quantity" 
+          name="quantity"
+          class="form-input"
+          placeholder="Quantité"
+          required
+          [min]="adjustmentType === 'exit' ? 0 : 1"
+        />
+        <small class="form-hint">
+          <span *ngIf="adjustmentType === 'entry'">Quantité à ajouter</span>
+          <span *ngIf="adjustmentType === 'exit'">Quantité à retirer</span>
+          <span *ngIf="adjustmentType === 'adjustment'">Nouvelle quantité totale</span>
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="reason">Raison *</label>
+        <select 
+          id="reason" 
+          [(ngModel)]="adjustment.reason" 
+          name="reason"
+          class="form-input"
+          required
+        >
+          <option value="">Sélectionner une raison</option>
+          <option value="vente">Vente</option>
+          <option value="reception">Réception</option>
+          <option value="ajustement">Ajustement</option>
+          <option value="perte">Perte</option>
+          <option value="retour">Retour</option>
+          <option value="transfert">Transfert</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes (optionnel)</label>
+        <textarea 
+          id="notes" 
+          [(ngModel)]="adjustment.notes" 
+          name="notes"
+          class="form-input"
+          placeholder="Notes supplémentaires..."
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="form-section" *ngIf="adjustment.quantity !== 0">
+      <h3 class="section-title">Aperçu</h3>
+      <div class="preview-stock">
+        <div class="preview-header">
+          <span class="preview-label">Nouveau stock</span>
+          <span class="preview-value">{{ getNewStock() }} unités</span>
+        </div>
+        <div class="stock-bar-preview">
+          <div class="stock-bar-fill-preview" [style.width.%]="getNewStockPercentage()"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="!isFormValid() || isLoading">
+        <i class="bi bi-check-lg"></i>
+        Enregistrer l'ajustement
+      </button>
+    </div>
+  </form>
+</div>

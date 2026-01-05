@@ -1,0 +1,88 @@
+<div class="shop-form-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Créer une boutique</h1>
+      <p class="subtitle">Ajoutez un nouveau point de vente</p>
+    </div>
+    <button (click)="cancel()" class="btn btn-secondary">
+      <i class="bi bi-x-lg"></i>
+      Annuler
+    </button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="shop-form card">
+    <div class="form-section">
+      <h3 class="section-title">Informations de la boutique</h3>
+      
+      <div class="form-group">
+        <label for="name">Nom de la boutique *</label>
+        <input 
+          type="text" 
+          id="name" 
+          [(ngModel)]="shop.name" 
+          name="name"
+          class="form-input"
+          placeholder="Ex: Boutique Centre-Ville"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="address">Adresse</label>
+        <input 
+          type="text" 
+          id="address" 
+          [(ngModel)]="shop.address" 
+          name="address"
+          class="form-input"
+          placeholder="Ex: 123 Avenue Principale, Dakar"
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="phone">Téléphone</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            [(ngModel)]="shop.phone" 
+            name="phone"
+            class="form-input"
+            placeholder="Ex: +221 77 123 45 67"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            [(ngModel)]="shop.email" 
+            name="email"
+            class="form-input"
+            placeholder="Ex: boutique@example.com"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-group">
+          <input 
+            type="checkbox" 
+            [(ngModel)]="shop.is_active" 
+            name="is_active"
+          />
+          <span>Boutique active</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" (click)="cancel()" class="btn btn-secondary">Annuler</button>
+      <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()">
+        <i class="bi bi-check-lg"></i>
+        Créer la boutique
+      </button>
+    </div>
+  </form>
+</div>

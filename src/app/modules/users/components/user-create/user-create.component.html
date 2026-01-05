@@ -1,0 +1,171 @@
+<div class="user-form-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Créer un utilisateur</h1>
+      <p class="subtitle">Ajoutez un nouvel utilisateur au système</p>
+    </div>
+    <button (click)="cancel()" class="btn btn-secondary">
+      <i class="bi bi-x-lg"></i>
+      Annuler
+    </button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="user-form card">
+    <div class="form-section">
+      <h3 class="section-title">Informations personnelles</h3>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="first_name">Prénom *</label>
+          <input 
+            type="text" 
+            id="first_name" 
+            [(ngModel)]="form.first_name" 
+            name="first_name"
+            class="form-input"
+            placeholder="Ex: Marie"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="last_name">Nom *</label>
+          <input 
+            type="text" 
+            id="last_name" 
+            [(ngModel)]="form.last_name" 
+            name="last_name"
+            class="form-input"
+            placeholder="Ex: Dupont"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input 
+          type="email" 
+          id="email" 
+          [(ngModel)]="form.email" 
+          name="email"
+          class="form-input"
+          placeholder="Ex: marie.dupont@shop.sn"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Téléphone</label>
+        <input 
+          type="tel" 
+          id="phone" 
+          [(ngModel)]="form.phone" 
+          name="phone"
+          class="form-input"
+          placeholder="Ex: +221 77 123 45 67"
+        />
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-title">Informations de connexion</h3>
+      
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur *</label>
+        <input 
+          type="text" 
+          id="username" 
+          [(ngModel)]="form.username" 
+          name="username"
+          class="form-input"
+          placeholder="Ex: marie.dupont"
+          required
+        />
+        <small class="form-hint">Nom d'utilisateur unique pour la connexion</small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Mot de passe *</label>
+          <input 
+            type="password" 
+            id="password" 
+            [(ngModel)]="form.password" 
+            name="password"
+            class="form-input"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password_confirm">Confirmer le mot de passe *</label>
+          <input 
+            type="password" 
+            id="password_confirm" 
+            [(ngModel)]="form.password_confirm" 
+            name="password_confirm"
+            class="form-input"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-title">Rôle et affectation</h3>
+      
+      <div class="form-group">
+        <label for="role">Rôle *</label>
+        <select 
+          id="role" 
+          [(ngModel)]="form.role" 
+          name="role"
+          class="form-input"
+          (change)="onRoleChange()"
+          required
+        >
+          <option value="seller">Vendeur</option>
+          <option value="admin">Administrateur</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="form.role === 'seller'">
+        <label for="shop_id">Boutique *</label>
+        <select 
+          id="shop_id" 
+          [(ngModel)]="form.shop" 
+          name="shop_id"
+          class="form-input"
+          required
+        >
+          <option value="">Sélectionner une boutique</option>
+          <option *ngFor="let shop of shops" [value]="shop.id">{{ shop.name }}</option>
+        </select>
+        <small class="form-hint">Les vendeurs doivent être affectés à une boutique</small>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-group">
+          <input 
+            type="checkbox" 
+            [(ngModel)]="form.is_active" 
+            name="is_active"
+          />
+          <span>Utilisateur actif</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" (click)="cancel()" class="btn btn-secondary">Annuler</button>
+      <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()">
+        <i class="bi bi-check-lg"></i>
+        Créer l'utilisateur
+      </button>
+    </div>
+  </form>
+</div>
+

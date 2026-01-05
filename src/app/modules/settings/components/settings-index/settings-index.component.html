@@ -1,0 +1,29 @@
+<div class="settings-index-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Paramètres</h1>
+      <p class="subtitle">Gérez les paramètres et configurations de la plateforme</p>
+    </div>
+  </div>
+
+  <div class="settings-grid">
+    <a 
+      *ngFor="let option of settingsOptions" 
+      [routerLink]="option.route"
+      class="settings-card card"
+      [class]="'card-' + option.color"
+    >
+      <div class="card-icon" [class]="'icon-' + option.color">
+        <i class="bi" [ngClass]="option.icon"></i>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">{{ option.title }}</h3>
+        <p class="card-description">{{ option.description }}</p>
+      </div>
+      <div class="card-arrow">
+        <i class="bi bi-chevron-right"></i>
+      </div>
+    </a>
+  </div>
+</div>
+

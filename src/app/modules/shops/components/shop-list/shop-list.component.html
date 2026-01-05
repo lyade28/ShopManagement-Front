@@ -1,0 +1,146 @@
+<div class="shop-list-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Boutiques</h1>
+      <p class="subtitle">Gérez vos boutiques</p>
+    </div>
+    <a routerLink="/shops/create" class="btn btn-primary">
+      <i class="bi bi-plus-lg"></i>
+      Nouvelle boutique
+    </a>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card card">
+      <div class="stat-icon total">
+        <i class="bi bi-shop"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ totalShops }}</div>
+        <div class="stat-label">Total boutiques</div>
+      </div>
+    </div>
+
+    <div class="stat-card card">
+      <div class="stat-icon active">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ activeShops }}</div>
+        <div class="stat-label">Boutiques actives</div>
+      </div>
+    </div>
+
+    <div class="stat-card card">
+      <div class="stat-icon inactive">
+        <i class="bi bi-x-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ inactiveShops }}</div>
+        <div class="stat-label">Boutiques inactives</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card card">
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input 
+        type="text" 
+        placeholder="Rechercher une boutique par nom, adresse, téléphone..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  <!-- Shops Grid -->
+  <div *ngIf="!isLoading && displayedShops.length > 0" class="shops-grid">
+    <div *ngFor="let shop of displayedShops" class="shop-card card">
+      <div class="shop-card-header">
+        <div class="shop-info">
+          <div class="shop-name">{{ shop.name }}</div>
+          <span class="shop-status" [class.active]="shop.is_active !== false" [class.inactive]="shop.is_active === false">
+            <i class="bi" [class.bi-check-circle-fill]="shop.is_active !== false" [class.bi-x-circle-fill]="shop.is_active === false"></i>
+            {{ shop.is_active !== false ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="shop-details">
+        <div class="detail-item" *ngIf="shop.address">
+          <i class="bi bi-geo-alt"></i>
+          <span class="detail-label">Adresse:</span>
+          <span class="detail-value">{{ shop.address }}</span>
+        </div>
+
+        <div class="detail-item" *ngIf="shop.phone">
+          <i class="bi bi-telephone"></i>
+          <span class="detail-label">Téléphone:</span>
+          <span class="detail-value">{{ shop.phone }}</span>
+        </div>
+
+        <div class="detail-item" *ngIf="shop.email">
+          <i class="bi bi-envelope"></i>
+          <span class="detail-label">Email:</span>
+          <span class="detail-value">{{ shop.email }}</span>
+        </div>
+      </div>
+
+      <div class="shop-card-footer">
+        <a [routerLink]="['/shops/detail', shop.id]" class="btn-link">
+          <i class="bi bi-eye"></i>
+          Voir détails
+        </a>
+        <div class="footer-actions">
+          <a [routerLink]="['/shops/edit', shop.id]" class="btn btn-secondary btn-small">
+            <i class="bi bi-pencil"></i>
+            Modifier
+          </a>
+          <button (click)="deleteShop(shop.id)" class="btn btn-danger btn-small">
+            <i class="bi bi-trash"></i>
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des boutiques...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && displayedShops.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="bi bi-shop"></i>
+    </div>
+    <h3>Aucune boutique trouvée</h3>
+    <p *ngIf="searchTerm">
+      Aucune boutique ne correspond à votre recherche.
+    </p>
+    <p *ngIf="!searchTerm">
+      Commencez par créer votre première boutique.
+    </p>
+    <a routerLink="/shops/create" class="btn btn-primary">
+      <i class="bi bi-plus-lg"></i>
+      Créer une boutique
+    </a>
+  </div>
+  
+  <!-- Pagination -->
+  <app-pagination
+    *ngIf="totalItems > 0"
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [totalItems]="totalItems"
+    (pageChange)="onPageChange($event)"
+    (pageSizeChange)="onPageSizeChange($event)">
+  </app-pagination>
+</div>

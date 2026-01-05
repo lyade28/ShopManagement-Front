@@ -1,0 +1,108 @@
+<div class="reports-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Rapports</h1>
+      <p class="subtitle">Générez et exportez vos rapports d'activité</p>
+    </div>
+  </div>
+
+  <div class="reports-layout">
+    <!-- Report Configuration -->
+    <div class="report-config card">
+      <h3 class="section-title">Configuration du rapport</h3>
+      
+      <div class="form-section">
+        <div class="form-group">
+          <label for="reportType">Type de rapport *</label>
+          <select 
+            id="reportType" 
+            [(ngModel)]="reportType" 
+            class="form-input"
+          >
+            <option value="sales">Rapport des ventes</option>
+            <option value="stock">Rapport du stock</option>
+            <option value="revenue">Rapport des recettes</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="dateRange">Période *</label>
+          <select 
+            id="dateRange" 
+            [(ngModel)]="dateRange" 
+            class="form-input"
+          >
+            <option value="day">Aujourd'hui</option>
+            <option value="week">Cette semaine</option>
+            <option value="month">Ce mois</option>
+            <option value="custom">Période personnalisée</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="dateRange === 'custom'">
+          <div class="date-inputs">
+            <div>
+              <label for="startDate">Date de début</label>
+              <input 
+                type="date" 
+                id="startDate" 
+                [(ngModel)]="startDate" 
+                class="form-input"
+              />
+            </div>
+            <div>
+              <label for="endDate">Date de fin</label>
+              <input 
+                type="date" 
+                id="endDate" 
+                [(ngModel)]="endDate" 
+                class="form-input"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="selectedShop">Boutique</label>
+          <select 
+            id="selectedShop" 
+            [(ngModel)]="selectedShop" 
+            class="form-input"
+          >
+            <option value="all">Toutes les boutiques</option>
+            <option *ngFor="let shop of shops" [value]="shop.id">{{ shop.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button (click)="generateReport()" class="btn btn-primary btn-block">
+          <i class="bi bi-check-lg"></i>
+          Générer le rapport
+        </button>
+      </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="export-options card">
+      <h3 class="section-title">Exporter le rapport</h3>
+      <p class="section-description">Téléchargez votre rapport dans le format de votre choix</p>
+      
+      <div class="export-buttons">
+        <button (click)="exportReport('excel')" class="export-btn excel">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" fill="currentColor"/>
+          </svg>
+          <span>Excel</span>
+        </button>
+        
+        <button (click)="exportReport('csv')" class="export-btn csv">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
+          </svg>
+          <span>CSV</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

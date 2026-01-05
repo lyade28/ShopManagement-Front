@@ -1,0 +1,108 @@
+<div class="audit-trail-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Journal d'Audit</h1>
+      <p class="subtitle">Historique des actions effectuées sur la plateforme</p>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-grid" *ngIf="stats">
+    <div class="stat-card card">
+      <div class="stat-icon total"><i class="bi bi-list-ul"></i></div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.total_actions }}</div>
+        <div class="stat-label">Total actions</div>
+      </div>
+    </div>
+    <div class="stat-card card" *ngFor="let action of actions.slice(1)">
+      <div class="stat-icon" [class]="getActionColor(action.value)"><i class="bi"
+          [ngClass]="getActionIcon(action.value)"></i></div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.by_action[action.value] || 0 }}</div>
+        <div class="stat-label">{{ action.label }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-card card">
+    <div class="filters-grid">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Rechercher..." [(ngModel)]="searchTerm" (input)="applyFilters()"
+          class="search-input" />
+      </div>
+
+      <select [(ngModel)]="selectedAction" (change)="applyFilters()" class="filter-select">
+        <option *ngFor="let action of actions" [value]="action.value">{{ action.label }}</option>
+      </select>
+
+      <select [(ngModel)]="selectedModel" (change)="applyFilters()" class="filter-select">
+        <option *ngFor="let model of models" [value]="model.value">{{ model.label }}</option>
+      </select>
+
+      <input type="date" [(ngModel)]="startDate" (change)="applyFilters()" placeholder="Date début"
+        class="filter-input" />
+
+      <input type="date" [(ngModel)]="endDate" (change)="applyFilters()" placeholder="Date fin" class="filter-input" />
+
+      <button (click)="resetFilters()" class="btn btn-secondary">
+        <i class="bi bi-arrow-counterclockwise"></i>
+        Réinitialiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Liste des logs -->
+  <div class="logs-container" *ngIf="!isLoading && logs.length > 0">
+    <div *ngFor="let log of logs" class="log-card card">
+      <div class="log-header">
+        <div class="log-action">
+          <i class="bi" [ngClass]="getActionIcon(log.action)" [class]="'action-' + getActionColor(log.action)"></i>
+          <span class="action-label">{{ log.action_display }}</span>
+        </div>
+        <div class="log-date">{{ formatDate(log.created_at) }}</div>
+      </div>
+
+      <div class="log-content">
+        <div class="log-item">
+          <span class="log-label">Modèle:</span>
+          <span class="log-value">{{ log.model_name }}</span>
+        </div>
+
+        <div class="log-item" *ngIf="log.object_repr">
+          <span class="log-label">Objet:</span>
+          <span class="log-value">{{ log.object_repr }}</span>
+        </div>
+
+        <div class="log-item" *ngIf="log.user_name">
+          <span class="log-label">Utilisateur:</span>
+          <span class="log-value">{{ log.user_name }}</span>
+        </div>
+
+        <div class="log-item" *ngIf="log.ip_address">
+          <span class="log-label">IP:</span>
+          <span class="log-value">{{ log.ip_address }}</span>
+        </div>
+
+        <div class="log-item" *ngIf="log.changes && hasChanges(log.changes)">
+          <span class="log-label">Modifications:</span>
+          <pre class="log-changes">{{ log.changes | json }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && logs.length === 0" class="empty-state">
+    <i class="bi bi-inbox" style="font-size: 64px; opacity: 0.3;"></i>
+    <p>Aucun log d'audit trouvé</p>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p>Chargement des logs d'audit...</p>
+  </div>
+</div>

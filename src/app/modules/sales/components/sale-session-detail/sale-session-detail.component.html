@@ -1,0 +1,82 @@
+<div class="sale-session-detail-container fade-in" *ngIf="session">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a routerLink="/sales">Sessions de Vente</a>
+        <span>/</span>
+        <span>Session #{{ session.id }}</span>
+      </div>
+      <h1>Session #{{ session.id }}</h1>
+      <p class="subtitle">{{ session.shop_name }} - {{ session.seller_name }}</p>
+    </div>
+    <div class="header-actions">
+      <a *ngIf="session.status === 'open'" [routerLink]="['/sales/sell', session.id]" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i>
+        Nouvelle vente
+      </a>
+      <button 
+        *ngIf="session.status === 'open'" 
+        (click)="closeSession()"
+        class="btn btn-secondary"
+        title="Fermer la session"
+      >
+        <i class="bi bi-lock"></i>
+        Fermer la session
+      </button>
+    </div>
+  </div>
+
+  <div class="session-stats card">
+    <div class="stat-item">
+      <span class="stat-label">Total des ventes</span>
+      <span class="stat-value">{{ session.total_sales | currencyFormat }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Nombre de ventes</span>
+      <span class="stat-value">{{ session.sales_count }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Statut</span>
+      <span class="status-badge" [class.open]="session.status === 'open'" [class.closed]="session.status === 'closed'">
+        {{ session.status === 'open' ? 'Ouverte' : 'Fermée' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="sales-list card">
+    <h3 class="card-title">Ventes de la session</h3>
+    <div class="sales-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Produits</th>
+            <th>Total</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sale of sales">
+            <td>#{{ sale.id }}</td>
+            <td>{{ sale.customer_name }}</td>
+            <td>
+              <div class="sale-items">
+                <span *ngFor="let item of sale.items" class="item-tag">
+                  {{ item.product_name }} ({{ item.quantity }})
+                </span>
+              </div>
+            </td>
+            <td class="amount">{{ sale.total | currencyFormat }}</td>
+            <td>{{ sale.created_at }}</td>
+            <td>
+              <a [routerLink]="['/invoices/detail', sale.id]" class="btn-link">Voir facture</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,203 @@
+<div class="sale-session-list-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Sessions de Vente</h1>
+      <p class="subtitle">Gérez vos sessions de vente</p>
+    </div>
+    <a routerLink="/sales/create" class="btn btn-primary">
+      <i class="bi bi-plus-lg"></i>
+      Nouvelle session
+    </a>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: var(--primary);">
+        <i class="bi bi-calendar-check"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ totalSessions }}</div>
+        <div class="stat-label">Total sessions</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+        <i class="bi bi-unlock"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ openSessions }}</div>
+        <div class="stat-label">Sessions ouvertes</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon" style="background: rgba(100, 116, 139, 0.1); color: var(--text-muted);">
+        <i class="bi bi-lock"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ closedSessions }}</div>
+        <div class="stat-label">Sessions fermées</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+        <i class="bi bi-cash-stack"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ formatCurrency(totalRevenue) }}</div>
+        <div class="stat-label">Revenu total</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card card">
+    <div class="filters-grid">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input 
+          type="text" 
+          placeholder="Rechercher une session..." 
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="search-input"
+        />
+      </div>
+      
+      <select 
+        [(ngModel)]="statusFilter" 
+        (change)="onStatusFilterChange()"
+        class="filter-select"
+      >
+        <option value="all">Tous les statuts</option>
+        <option value="open">Ouvertes</option>
+        <option value="closed">Fermées</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Sessions Grid -->
+  <div *ngIf="!isLoading && displayedSessions.length > 0" class="sessions-grid">
+    <div 
+      *ngFor="let session of displayedSessions" 
+      class="session-card card"
+      [class.open]="session.status === 'open'"
+      [class.closed]="session.status === 'closed'"
+    >
+      <div class="session-card-header">
+        <div class="session-info">
+          <div class="session-shop">{{ session.shop_name || 'Boutique' }}</div>
+          <div class="session-id">
+            <i class="bi bi-hash"></i>
+            {{ session.session_number }}
+          </div>
+        </div>
+        <span class="status-badge" [class.open]="session.status === 'open'" [class.closed]="session.status === 'closed'">
+          <i class="bi" [class.bi-circle-fill]="session.status === 'open'" [class.bi-check-circle]="session.status === 'closed'"></i>
+          {{ getStatusLabel(session.status) }}
+        </span>
+      </div>
+
+      <div class="session-details">
+        <div class="detail-item">
+          <i class="bi bi-person"></i>
+          <span class="detail-label">Vendeur:</span>
+          <span class="detail-value">{{ session.seller_name || 'N/A' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <i class="bi bi-clock"></i>
+          <span class="detail-label">Ouverture:</span>
+          <span class="detail-value">{{ session.start_time | date:'short' }}</span>
+        </div>
+        
+        <div class="detail-item" *ngIf="session.end_time">
+          <i class="bi bi-clock-history"></i>
+          <span class="detail-label">Fermeture:</span>
+          <span class="detail-value">{{ session.end_time | date:'short' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <i class="bi bi-hourglass-split"></i>
+          <span class="detail-label">Durée:</span>
+          <span class="detail-value">{{ getSessionDuration(session.start_time, session.end_time) }}</span>
+        </div>
+        
+        <div class="detail-item" *ngIf="session.sales_count !== undefined">
+          <i class="bi bi-cart"></i>
+          <span class="detail-label">Ventes:</span>
+          <span class="detail-value">{{ session.sales_count }} vente(s)</span>
+        </div>
+      </div>
+
+      <div class="session-revenue">
+        <div class="revenue-label">Total des ventes</div>
+        <div class="revenue-amount">{{ formatCurrency(session.total_sales || 0) }}</div>
+      </div>
+
+      <div class="session-card-footer">
+        <a [routerLink]="['/sales/detail', session.id]" class="btn-link">
+          <i class="bi bi-eye"></i>
+          Voir détails
+        </a>
+        <div class="footer-actions">
+          <a 
+            *ngIf="session.status === 'open'" 
+            [routerLink]="['/sales/sell', session.id]" 
+            class="btn btn-primary btn-small"
+          >
+            <i class="bi bi-cart-plus"></i>
+            Nouvelle vente
+          </a>
+          <button 
+            *ngIf="session.status === 'open'" 
+            (click)="closeSession(session.id, $event)"
+            class="btn btn-secondary btn-small"
+            title="Fermer la session"
+          >
+            <i class="bi bi-lock"></i>
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des sessions...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && displayedSessions.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="bi bi-cart-check"></i>
+    </div>
+    <h3>Aucune session trouvée</h3>
+    <p *ngIf="searchTerm || statusFilter !== 'all'">
+      Aucune session ne correspond à vos critères de recherche.
+    </p>
+    <p *ngIf="!searchTerm && statusFilter === 'all'">
+      Commencez par créer votre première session de vente.
+    </p>
+    <a routerLink="/sales/create" class="btn btn-primary">
+      <i class="bi bi-plus-lg"></i>
+      Créer une session
+    </a>
+  </div>
+  
+  <!-- Pagination -->
+  <app-pagination
+    *ngIf="totalItems > 0"
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [totalItems]="totalItems"
+    (pageChange)="onPageChange($event)"
+    (pageSizeChange)="onPageSizeChange($event)">
+  </app-pagination>
+</div>

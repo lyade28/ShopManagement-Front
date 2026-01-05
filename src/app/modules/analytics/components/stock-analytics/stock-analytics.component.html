@@ -1,0 +1,102 @@
+<div class="stock-analytics-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Analyse du Stock</h1>
+      <p class="subtitle">Surveillance et statistiques de l'inventaire</p>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card card">
+      <div class="stat-icon products">
+        <i class="bi bi-box-seam"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Produits</div>
+        <div class="stat-value">{{ getTotalProducts() }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card card">
+      <div class="stat-icon stock">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Stock Total</div>
+        <div class="stat-value">{{ getTotalStock() }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card card">
+      <div class="stat-icon alerts">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Alertes</div>
+        <div class="stat-value">{{ getTotalAlerts() }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock Alerts -->
+  <div class="alerts-section card">
+    <h3 class="section-title">Alertes de Stock</h3>
+    <div class="alerts-list">
+      <div *ngFor="let alert of stockAlerts" class="alert-item">
+        <div class="alert-icon" [class]="getStatusClass(alert.status)">
+          <svg *ngIf="alert.status === 'low'" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/>
+          </svg>
+          <svg *ngIf="alert.status === 'out'" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="alert-info">
+          <div class="alert-product">{{ alert.product_name }}</div>
+          <div class="alert-details">
+            <span class="alert-category">{{ alert.category }}</span>
+            <span class="alert-stock">
+              Stock: {{ alert.current_stock }} / Min: {{ alert.min_quantity }}
+            </span>
+          </div>
+        </div>
+        <div class="alert-status">
+          <span [class]="getStatusClass(alert.status)">{{ getStatusLabel(alert.status) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Statistics -->
+  <div class="category-stats card">
+    <h3 class="section-title">Statistiques par Catégorie</h3>
+    <div class="category-list">
+      <div *ngFor="let category of categoryStats" class="category-item">
+        <div class="category-header">
+          <div class="category-name">{{ category.category }}</div>
+          <div class="category-alerts" *ngIf="category.low_stock_count > 0">
+            <span class="alert-count">{{ category.low_stock_count }} alerte(s)</span>
+          </div>
+        </div>
+        <div class="category-stats-grid">
+          <div class="category-stat">
+            <span class="stat-label">Produits</span>
+            <span class="stat-value">{{ category.total_products }}</span>
+          </div>
+          <div class="category-stat">
+            <span class="stat-label">Stock Total</span>
+            <span class="stat-value">{{ category.total_stock }}</span>
+          </div>
+        </div>
+        <div class="category-bar">
+          <div class="category-bar-fill" [style.width.%]="getTotalStock() > 0 ? (category.total_stock / getTotalStock()) * 100 : 0"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

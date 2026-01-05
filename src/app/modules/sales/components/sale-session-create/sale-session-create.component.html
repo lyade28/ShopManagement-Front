@@ -1,0 +1,90 @@
+<div class="sale-session-create-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Ouvrir une session de vente</h1>
+      <p class="subtitle">Créez une nouvelle session de vente pour un vendeur</p>
+    </div>
+    <button (click)="cancel()" class="btn btn-secondary">
+      <i class="bi bi-x-lg"></i>
+      Annuler
+    </button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="session-form card">
+    <div class="form-section">
+      <h3 class="section-title">Informations de la session</h3>
+      
+      <!-- Pour les admins : sélection de boutique et vendeur -->
+      <div *ngIf="isAdmin">
+        <div class="form-group">
+          <label for="shop_id">Boutique *</label>
+          <select 
+            id="shop_id" 
+            [(ngModel)]="session.shop_id" 
+            name="shop_id"
+            class="form-input"
+            (change)="onShopChange()"
+            required
+          >
+            <option value="">Sélectionner une boutique</option>
+            <option *ngFor="let shop of shops" [value]="shop.id">{{ shop.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="seller_id">Vendeur *</label>
+          <select 
+            id="seller_id" 
+            [(ngModel)]="session.seller_id" 
+            name="seller_id"
+            class="form-input"
+            [disabled]="!session.shop_id"
+            required
+          >
+            <option value="">Sélectionner un vendeur</option>
+            <option *ngFor="let seller of filteredSellers" [value]="seller.id">
+              {{ seller.first_name }} {{ seller.last_name }} 
+              <span *ngIf="seller.email">({{ seller.email }})</span>
+            </option>
+          </select>
+          <small class="form-hint" *ngIf="!session.shop_id">
+            Veuillez d'abord sélectionner une boutique
+          </small>
+          <small class="form-hint error" *ngIf="session.shop_id && filteredSellers.length === 0">
+            Aucun vendeur trouvé pour cette boutique. Assurez-vous qu'il y a des vendeurs associés à cette boutique.
+          </small>
+          <small class="form-hint info" *ngIf="session.shop_id && filteredSellers.length > 0">
+            {{ filteredSellers.length }} vendeur(s) disponible(s) pour cette boutique
+          </small>
+        </div>
+      </div>
+
+      <!-- Pour les vendeurs : affichage de leur boutique (non modifiable) -->
+      <div *ngIf="!isAdmin">
+        <div class="form-group">
+          <label>Boutique</label>
+          <div class="form-input" style="background: var(--bg-tertiary); color: var(--text-primary); padding: 0.75rem 1rem;">
+            {{ currentUser?.shop_name || 'Non définie' }}
+          </div>
+          <small class="form-hint">Votre boutique associée</small>
+        </div>
+        <div class="form-group">
+          <label>Vendeur</label>
+          <div class="form-input" style="background: var(--bg-tertiary); color: var(--text-primary); padding: 0.75rem 1rem;">
+            {{ currentUser?.first_name }} {{ currentUser?.last_name }}
+          </div>
+          <small class="form-hint">Vous serez le vendeur de cette session</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" (click)="cancel()" class="btn btn-secondary">Annuler</button>
+      <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()">
+        <i class="bi bi-check-lg"></i>
+        Ouvrir la session
+      </button>
+    </div>
+  </form>
+</div>
+

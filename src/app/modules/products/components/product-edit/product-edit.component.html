@@ -1,0 +1,245 @@
+<div class="product-form-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Modifier le produit</h1>
+      <p class="subtitle">Modifiez les informations du produit</p>
+    </div>
+    <button (click)="cancel()" class="btn btn-secondary">
+      <i class="bi bi-x-lg"></i>
+      Annuler
+    </button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="product-form card">
+    <div class="form-grid">
+      <!-- Informations de base -->
+      <div class="form-section">
+        <h3 class="section-title">Informations de base</h3>
+        
+        <div class="form-group">
+          <label for="name">Nom du produit *</label>
+          <input 
+            type="text" 
+            id="name" 
+            [(ngModel)]="product.name" 
+            name="name"
+            class="form-input"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="sku">Code produit (SKU)</label>
+          <input 
+            type="text" 
+            id="sku" 
+            [(ngModel)]="product.sku" 
+            name="sku"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="category">Catégorie *</label>
+            <select 
+              id="category" 
+              [(ngModel)]="product.category" 
+              name="category"
+              (change)="onCategoryChange()"
+              class="form-select"
+              required
+            >
+              <option value="">Sélectionner une catégorie</option>
+              <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="unit">Unité de mesure *</label>
+            <select 
+              id="unit" 
+              [(ngModel)]="product.unit" 
+              name="unit"
+              class="form-select"
+              required
+            >
+              <option *ngFor="let unit of units" [value]="unit.value">{{ unit.label }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attributs spécifiques à la catégorie -->
+      <div class="form-section" *ngIf="product.category && getAttributesForCategory().length > 0">
+        <h3 class="section-title">Caractéristiques spécifiques</h3>
+        
+        <div class="attributes-grid">
+          <div class="form-group" *ngFor="let attr of getAttributesForCategory()">
+            <label [for]="attr.name">
+              {{ attr.label }}
+              <span *ngIf="attr.required" class="required-star">*</span>
+            </label>
+            
+            <!-- Input text -->
+            <input 
+              *ngIf="attr.type === 'text'"
+              type="text"
+              [id]="attr.name"
+              [value]="getAttributeValue(attr.name)"
+              (input)="setAttributeValue(attr.name, $any($event.target).value)"
+              class="form-input"
+              [placeholder]="attr.placeholder || ''"
+              [required]="attr.required"
+            />
+            
+            <!-- Input number -->
+            <input 
+              *ngIf="attr.type === 'number'"
+              type="number"
+              [id]="attr.name"
+              [value]="getAttributeValue(attr.name)"
+              (input)="setAttributeValue(attr.name, $any($event.target).value)"
+              class="form-input"
+              [placeholder]="attr.placeholder || ''"
+              [required]="attr.required"
+              min="0"
+              step="0.01"
+            />
+            
+            <!-- Select -->
+            <select 
+              *ngIf="attr.type === 'select'"
+              [id]="attr.name"
+              [value]="getAttributeValue(attr.name)"
+              (change)="setAttributeValue(attr.name, $any($event.target).value)"
+              class="form-select"
+              [required]="attr.required"
+            >
+              <option value="">Sélectionner...</option>
+              <option *ngFor="let option of attr.options" [value]="option">{{ option }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prix et stock -->
+      <div class="form-section">
+        <h3 class="section-title">Prix et stock</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="purchase_price">Prix d'achat (FCFA) *</label>
+            <input 
+              type="number" 
+              id="purchase_price" 
+              [(ngModel)]="product.purchase_price" 
+              name="purchase_price"
+              class="form-input"
+              min="0"
+              step="1"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="selling_price">Prix de vente (FCFA) *</label>
+            <input 
+              type="number" 
+              id="selling_price" 
+              [(ngModel)]="product.selling_price" 
+              name="selling_price"
+              class="form-input"
+              min="0"
+              step="1"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="quantity">Quantité en stock *</label>
+            <input 
+              type="number" 
+              id="quantity" 
+              [(ngModel)]="quantity" 
+              name="quantity"
+              class="form-input"
+              placeholder="0"
+              min="0"
+              step="1"
+              required
+            />
+            <small class="form-hint">Quantité actuelle disponible en stock</small>
+          </div>
+
+          <div class="form-group">
+            <label for="min_quantity">Quantité minimale (seuil d'alerte)</label>
+            <input 
+              type="number" 
+              id="min_quantity" 
+              [(ngModel)]="minQuantity" 
+              name="min_quantity"
+              class="form-input"
+              placeholder="0"
+              min="0"
+              step="1"
+            />
+            <small class="form-hint">Seuil d'alerte pour stock faible</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-section full-width">
+        <h3 class="section-title">Description</h3>
+        
+        <div class="form-group">
+          <label for="description">Description du produit</label>
+          <textarea 
+            id="description" 
+            [(ngModel)]="product.description" 
+            name="description"
+            class="form-textarea"
+            rows="4"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Statut -->
+      <div class="form-section">
+        <h3 class="section-title">Statut</h3>
+        
+        <div class="form-group">
+          <label class="radio-group">
+            <input 
+              type="radio" 
+              [(ngModel)]="product.is_active" 
+              name="status"
+              [value]="true"
+            />
+            <span>Actif</span>
+          </label>
+          <label class="radio-group">
+            <input 
+              type="radio" 
+              [(ngModel)]="product.is_active" 
+              name="status"
+              [value]="false"
+            />
+            <span>Inactif</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" (click)="cancel()" class="btn btn-secondary">Annuler</button>
+      <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()">
+        <i class="bi bi-check-lg"></i>
+        Enregistrer les modifications
+      </button>
+    </div>
+  </form>
+</div>

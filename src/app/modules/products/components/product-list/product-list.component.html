@@ -1,0 +1,128 @@
+<div class="product-list-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Produits</h1>
+      <p class="subtitle">Gérez votre catalogue de produits</p>
+    </div>
+    <a routerLink="/products/create" class="btn btn-primary">
+      <i class="bi bi-plus-lg"></i>
+      Nouveau produit
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card card">
+    <div class="filters-grid">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input 
+          type="text" 
+          placeholder="Rechercher un produit..." 
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="search-input"
+        />
+      </div>
+      
+      <select 
+        [(ngModel)]="selectedCategory" 
+        (change)="onCategoryChange()"
+        class="category-select"
+      >
+        <option value="all">Toutes les catégories</option>
+        <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Products Table -->
+  <div class="table-card card">
+    <div class="table-header">
+      <h3>Liste des produits ({{ totalItems }})</h3>
+    </div>
+    
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Catégorie</th>
+            <th>Prix d'achat</th>
+            <th>Prix de vente</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of filteredProducts" class="product-row">
+            <td>
+              <div class="product-cell">
+                <div class="product-avatar">{{ product.name.charAt(0) }}</div>
+                <div class="product-info">
+                  <div class="product-name">{{ product.name }}</div>
+                  <div class="product-sku" *ngIf="product.sku">{{ product.sku }}</div>
+                  <div class="product-attributes" *ngIf="product.attributes">
+                    <span class="attribute-tag" *ngIf="product.attributes.color">
+                      <i class="bi bi-circle-fill" style="font-size: 8px;"></i>
+                      {{ product.attributes.color }}
+                    </span>
+                    <span class="attribute-tag" *ngIf="product.attributes.fabric_type">
+                      {{ product.attributes.fabric_type }}
+                    </span>
+                         <span class="attribute-tag" *ngIf="product.attributes?.type && product.category_name !== 'Tissus'">
+                      {{ product.attributes.type }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="category-badge">{{ product.category }}</span>
+            </td>
+            <td class="price">{{ product.purchase_price | currencyFormat }}</td>
+            <td class="price selling-price">{{ product.selling_price | currencyFormat }}</td>
+            <td>
+              <span class="status-badge" [class.active]="product.is_active"
+                    [class.inactive]="!product.is_active">
+                {{ getProductStatus(product) }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a [routerLink]="['/products/detail', product.id]" class="action-btn view" title="Voir détails">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a [routerLink]="['/inventory']" [queryParams]="{product: product.id}" class="action-btn stock" title="Voir stock">
+                  <i class="bi bi-box-seam"></i>
+                </a>
+                <a [routerLink]="['/products/edit', product.id]" class="action-btn edit" title="Modifier">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <button (click)="deleteProduct(product.id)" class="action-btn delete" title="Supprimer">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div *ngIf="filteredProducts.length === 0 && !isLoading" class="empty-state">
+        <i class="bi bi-box" style="font-size: 64px; opacity: 0.3;"></i>
+        <p>Aucun produit trouvé</p>
+        <a routerLink="/products/create" class="btn btn-primary">Créer un produit</a>
+      </div>
+    </div>
+    
+    <!-- Pagination -->
+    <app-pagination
+      *ngIf="totalItems > 0"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      [pageSize]="pageSize"
+      [totalItems]="totalItems"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)">
+    </app-pagination>
+  </div>
+</div>

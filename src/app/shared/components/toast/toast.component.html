@@ -1,0 +1,24 @@
+<div class="toast-container">
+  <div 
+    *ngFor="let toast of toasts" 
+    class="toast"
+    [class]="'toast-' + toast.type"
+    (click)="dismiss(toast)">
+    <div class="toast-icon">
+      <i class="bi" [ngClass]="getIcon(toast.type)"></i>
+    </div>
+    <div class="toast-content">
+      <div class="toast-message">{{ toast.message }}</div>
+      <button 
+        *ngIf="toast.action" 
+        class="toast-action"
+        (click)="toast.action!.callback(); dismiss(toast); $event.stopPropagation()">
+        {{ toast.action.label }}
+      </button>
+    </div>
+    <button class="toast-close" (click)="dismiss(toast); $event.stopPropagation()">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+</div>
+

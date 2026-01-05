@@ -1,0 +1,155 @@
+<div class="category-list-container fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Catégories</h1>
+      <p class="subtitle">Gérez les catégories de produits et leurs attributs</p>
+    </div>
+    <a routerLink="/settings/categories/create" class="btn btn-primary">
+      <i class="bi bi-plus-lg"></i>
+      Nouvelle catégorie
+    </a>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card card">
+      <div class="stat-icon total">
+        <i class="bi bi-folder"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ totalCategories }}</div>
+        <div class="stat-label">Total catégories</div>
+      </div>
+    </div>
+
+    <div class="stat-card card">
+      <div class="stat-icon active">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ activeCategories }}</div>
+        <div class="stat-label">Catégories actives</div>
+      </div>
+    </div>
+
+    <div class="stat-card card">
+      <div class="stat-icon products">
+        <i class="bi bi-box-seam"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ categoriesWithProducts }}</div>
+        <div class="stat-label">Avec produits</div>
+      </div>
+    </div>
+
+    <div class="stat-card card">
+      <div class="stat-icon total-products">
+        <i class="bi bi-collection"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ totalProducts }}</div>
+        <div class="stat-label">Total produits</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card card">
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input 
+        type="text" 
+        placeholder="Rechercher une catégorie..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  <!-- Categories Grid -->
+  <div *ngIf="!isLoading && displayedCategories.length > 0" class="categories-grid">
+    <div *ngFor="let category of displayedCategories" class="category-card card">
+      <div class="category-card-header">
+        <div class="category-info">
+          <div class="category-name">{{ category.name }}</div>
+          <span class="category-status" [class.active]="category.is_active !== false" [class.inactive]="category.is_active === false">
+            <i class="bi" [class.bi-check-circle-fill]="category.is_active !== false" [class.bi-x-circle-fill]="category.is_active === false"></i>
+            {{ category.is_active !== false ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+        <button 
+          (click)="toggleCategoryStatus(category)" 
+          class="icon-btn-small" 
+          [title]="category.is_active !== false ? 'Désactiver' : 'Activer'">
+          <i class="bi" [class.bi-toggle-on]="category.is_active !== false" [class.bi-toggle-off]="category.is_active === false"></i>
+        </button>
+      </div>
+
+      <div class="category-details">
+        <div class="category-description" *ngIf="category.description">
+          {{ category.description }}
+        </div>
+        <div class="category-description empty" *ngIf="!category.description">
+          <i class="bi bi-info-circle"></i>
+          Aucune description
+        </div>
+
+        <div class="category-stats">
+          <div class="stat-item">
+            <i class="bi bi-box-seam"></i>
+            <span><strong>{{ getProductsCount(category) }}</strong> produit(s)</span>
+          </div>
+          <div class="stat-item">
+            <i class="bi bi-tags"></i>
+            <span><strong>{{ getAttributesCount(category) }}</strong> attribut(s)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-card-footer">
+        <a [routerLink]="['/settings/categories', category.id, 'attributes']" class="btn-link">
+          <i class="bi bi-tags"></i>
+          Gérer attributs
+        </a>
+        <div class="action-buttons">
+          <a [routerLink]="['/settings/categories/edit', category.id]" class="action-btn edit" title="Modifier">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <button (click)="deleteCategory(category.id)" class="action-btn delete" title="Supprimer">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && displayedCategories.length === 0" class="empty-state card">
+    <i class="bi bi-folder" style="font-size: 64px; opacity: 0.3;"></i>
+    <h3>Aucune catégorie trouvée</h3>
+    <p *ngIf="searchTerm">Aucune catégorie ne correspond à votre recherche</p>
+    <p *ngIf="!searchTerm">Commencez par créer votre première catégorie</p>
+    <a routerLink="/settings/categories/create" class="btn btn-primary">
+      <i class="bi bi-plus-lg"></i>
+      Créer une catégorie
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des catégories...</p>
+  </div>
+  
+  <!-- Pagination -->
+  <app-pagination
+    *ngIf="totalItems > 0"
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [totalItems]="totalItems"
+    (pageChange)="onPageChange($event)"
+    (pageSizeChange)="onPageSizeChange($event)">
+  </app-pagination>
+</div>

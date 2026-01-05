@@ -1,0 +1,147 @@
+<div class="dashboard-container fade-in">
+  <div class="dashboard-header">
+    <h2>Tableau de bord</h2>
+    <p class="subtitle">Vue d'ensemble de votre activité</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div *ngFor="let stat of stats" class="stat-card" [style.--card-color]="stat.color">
+      <div class="stat-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <use [attr.href]="'#icon-' + stat.icon"></use>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-title">{{ stat.title }}</div>
+        <div class="stat-value">{{ stat.value }}</div>
+        <div class="stat-change" [class.trend-up]="stat.trend === 'up'" [class.trend-down]="stat.trend === 'down'">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path *ngIf="stat.trend === 'up'" d="M8 4L12 8H9V12H7V8H4L8 4Z" fill="currentColor"/>
+            <path *ngIf="stat.trend === 'down'" d="M8 12L4 8H7V4H9V8H12L8 12Z" fill="currentColor"/>
+          </svg>
+          {{ stat.change }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="dashboard-grid">
+    <!-- Recent Sales -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Ventes récentes</h3>
+        <a routerLink="/sales" class="view-all">Voir tout</a>
+      </div>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Montant</th>
+              <th>Date</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sale of recentSales">
+              <td>
+                <div class="customer-cell">
+                  <div class="customer-avatar">{{ sale.customer.charAt(0) }}</div>
+                  <span>{{ sale.customer }}</span>
+                </div>
+              </td>
+              <td class="amount">{{ sale.amount | currencyFormat }}</td>
+              <td class="date">{{ sale.date }}</td>
+              <td>
+                <span class="status-badge status-completed">{{ sale.status }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Top Products -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Top produits</h3>
+        <a routerLink="/products" class="view-all">Voir tout</a>
+      </div>
+      <div class="products-list">
+        <div *ngFor="let product of topProducts; let i = index" class="product-item">
+          <div class="product-rank">{{ i + 1 }}</div>
+          <div class="product-info">
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-stats">
+              <span>{{ product.sales }} ventes</span>
+              <span class="separator">•</span>
+              <span>{{ product.revenue | currencyFormat }}</span>
+            </div>
+          </div>
+          <div class="product-bar">
+            <div class="product-bar-fill" [style.width.%]="(product.revenue / topProducts[0].revenue) * 100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h3>Actions rapides</h3>
+    <div class="actions-grid">
+      <a routerLink="/sales/point-of-sale" class="action-card">
+        <div class="action-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="action-title">Nouvelle vente</div>
+      </a>
+      <a routerLink="/products/create" class="action-card">
+        <div class="action-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14m7-7H5" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="action-title">Ajouter produit</div>
+      </a>
+      <a routerLink="/inventory/adjust" class="action-card">
+        <div class="action-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="action-title">Ajuster stock</div>
+      </a>
+      <a routerLink="/analytics/reports" class="action-card">
+        <div class="action-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="action-title">Générer rapport</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- SVG Icons -->
+<svg style="display: none;">
+  <defs>
+    <symbol id="icon-trending_up" viewBox="0 0 24 24">
+      <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" fill="currentColor"/>
+    </symbol>
+    <symbol id="icon-shopping_cart" viewBox="0 0 24 24">
+      <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/>
+    </symbol>
+    <symbol id="icon-inventory" viewBox="0 0 24 24">
+      <path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm0-4H9V8h6v2zm4-4H4V4h16v2z" fill="currentColor"/>
+    </symbol>
+    <symbol id="icon-warning" viewBox="0 0 24 24">
+      <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>

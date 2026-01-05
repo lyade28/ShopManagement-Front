@@ -1,0 +1,36 @@
+<div class="confirmation-overlay" *ngIf="show" (click)="onBackdropClick($event)">
+  <div class="confirmation-dialog" (click)="$event.stopPropagation()">
+    <div class="confirmation-header">
+      <h3 class="confirmation-title">{{ options.title }}</h3>
+      <button class="confirmation-close" (click)="onCancel()" type="button">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="confirmation-body">
+      <div class="confirmation-icon" [class]="'icon-' + options.type">
+        <i class="bi" [ngClass]="{
+          'bi-exclamation-triangle-fill': options.type === 'warning',
+          'bi-exclamation-circle-fill': options.type === 'danger',
+          'bi-info-circle-fill': options.type === 'info'
+        }"></i>
+      </div>
+      <p class="confirmation-message">{{ options.message }}</p>
+    </div>
+    <div class="confirmation-footer">
+      <button 
+        class="btn btn-secondary" 
+        (click)="onCancel()" 
+        type="button">
+        {{ options.cancelText }}
+      </button>
+      <button 
+        class="btn" 
+        [class]="'btn-' + (options.type === 'danger' ? 'danger' : options.type === 'warning' ? 'warning' : 'primary')"
+        (click)="onConfirm()" 
+        type="button">
+        {{ options.confirmText }}
+      </button>
+    </div>
+  </div>
+</div>
+

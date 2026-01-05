@@ -1,0 +1,185 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>Créer un compte</h1>
+      <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="first_name">Prénom *</label>
+          <input 
+            type="text" 
+            id="first_name" 
+            [(ngModel)]="form.first_name" 
+            name="first_name"
+            class="form-input"
+            placeholder="Prénom"
+            required
+            [disabled]="isLoading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="last_name">Nom *</label>
+          <input 
+            type="text" 
+            id="last_name" 
+            [(ngModel)]="form.last_name" 
+            name="last_name"
+            class="form-input"
+            placeholder="Nom"
+            required
+            [disabled]="isLoading"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur *</label>
+        <div class="input-wrapper">
+          <i class="bi bi-person"></i>
+          <input 
+            type="text" 
+            id="username" 
+            [(ngModel)]="form.username" 
+            name="username"
+            class="form-input"
+            placeholder="Nom d'utilisateur"
+            required
+            [disabled]="isLoading"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <div class="input-wrapper">
+          <i class="bi bi-envelope"></i>
+          <input 
+            type="email" 
+            id="email" 
+            [(ngModel)]="form.email" 
+            name="email"
+            class="form-input"
+            placeholder="Email"
+            required
+            [disabled]="isLoading"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Téléphone</label>
+        <div class="input-wrapper">
+          <i class="bi bi-telephone"></i>
+          <input 
+            type="tel" 
+            id="phone" 
+            [(ngModel)]="form.phone" 
+            name="phone"
+            class="form-input"
+            placeholder="Téléphone"
+            [disabled]="isLoading"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe *</label>
+        <div class="input-wrapper">
+          <i class="bi bi-lock"></i>
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            id="password" 
+            [(ngModel)]="form.password" 
+            name="password"
+            class="form-input"
+            placeholder="Mot de passe"
+            required
+            [disabled]="isLoading"
+          />
+          <button 
+            type="button" 
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [disabled]="isLoading"
+          >
+            <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password_confirm">Confirmer le mot de passe *</label>
+        <div class="input-wrapper">
+          <i class="bi bi-lock"></i>
+          <input 
+            [type]="showPasswordConfirm ? 'text' : 'password'" 
+            id="password_confirm" 
+            [(ngModel)]="form.password_confirm" 
+            name="password_confirm"
+            class="form-input"
+            placeholder="Confirmer le mot de passe"
+            required
+            [disabled]="isLoading"
+          />
+          <button 
+            type="button" 
+            class="password-toggle"
+            (click)="togglePasswordConfirmVisibility()"
+            [disabled]="isLoading"
+          >
+            <i class="bi" [class.bi-eye]="!showPasswordConfirm" [class.bi-eye-slash]="showPasswordConfirm"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="role">Rôle *</label>
+        <select 
+          id="role" 
+          [(ngModel)]="form.role" 
+          name="role"
+          class="form-input"
+          required
+          [disabled]="isLoading"
+        >
+          <option value="seller">Vendeur</option>
+          <option value="admin">Administrateur</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="form.role === 'seller' && shops.length > 0">
+        <label for="shop_id">Boutique</label>
+        <select 
+          id="shop_id" 
+          [(ngModel)]="form.shop_id" 
+          name="shop_id"
+          class="form-input"
+          [disabled]="isLoading"
+        >
+          <option [value]="null">Sélectionner une boutique</option>
+          <option *ngFor="let shop of shops" [value]="shop.id">{{ shop.name }}</option>
+        </select>
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-block"
+        [disabled]="isLoading || !isFormValid()"
+      >
+        <span *ngIf="!isLoading">Créer le compte</span>
+        <span *ngIf="isLoading" class="loading">
+          <i class="bi bi-arrow-repeat spinner-icon"></i>
+          Création...
+        </span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Vous avez déjà un compte ? <a routerLink="/auth/login">Se connecter</a></p>
+    </div>
+  </div>
+</div>
