@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter, Subscription } from 'rxjs';
 import { CurrencyFormatPipe } from '../../../../shared/pipes/currency-format.pipe';
 import { ProductService, Product, Category } from '../../../../core/services/product.service';
 import { PaginationService } from '../../../../core/services/pagination.service';
@@ -16,7 +17,7 @@ import { ConfirmationService } from '../../../../core/services/confirmation.serv
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.css'
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   categories: Category[] = [];
@@ -31,7 +32,10 @@ export class ProductListComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 1;
 
+  private routerSubscription?: Subscription;
+
   constructor(
+    private router: Router,
     private productService: ProductService,
     private paginationService: PaginationService,
     private toastService: ToastService,
@@ -41,6 +45,21 @@ export class ProductListComponent implements OnInit {
   ngOnInit() {
     this.loadProducts();
     this.loadCategories();
+    
+    // Recharger les données quand on revient sur cette route
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/products' || event.url.startsWith('/products?')) {
+          this.loadProducts(this.currentPage);
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   loadProducts(page: number = 1) {

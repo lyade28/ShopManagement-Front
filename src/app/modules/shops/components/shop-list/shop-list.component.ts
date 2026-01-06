@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter, Subscription } from 'rxjs';
 import { ShopService, Shop } from '../../../../core/services/shop.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ConfirmationService } from '../../../../core/services/confirmation.service';
@@ -14,7 +15,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
   templateUrl: './shop-list.component.html',
   styleUrl: './shop-list.component.css'
 })
-export class ShopListComponent implements OnInit {
+export class ShopListComponent implements OnInit, OnDestroy {
   shops: Shop[] = [];
   filteredShops: Shop[] = [];
   displayedShops: Shop[] = [];
@@ -26,6 +27,8 @@ export class ShopListComponent implements OnInit {
   pageSize: number = 10;
   totalItems: number = 0;
   totalPages: number = 1;
+
+  private routerSubscription?: Subscription;
 
   // Statistiques
   get totalShops(): number {
@@ -41,6 +44,7 @@ export class ShopListComponent implements OnInit {
   }
 
   constructor(
+    private router: Router,
     private shopService: ShopService,
     private toastService: ToastService,
     private confirmationService: ConfirmationService
@@ -48,6 +52,21 @@ export class ShopListComponent implements OnInit {
 
   ngOnInit() {
     this.loadShops();
+    
+    // Recharger les données quand on revient sur cette route
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/shops' || event.url.startsWith('/shops?')) {
+          this.loadShops();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   loadShops() {
@@ -124,8 +143,9 @@ export class ShopListComponent implements OnInit {
   toggleShopStatus(shop: Shop) {
     this.shopService.updateShop(shop.id, { is_active: !shop.is_active }).subscribe({
       next: () => {
-        shop.is_active = !shop.is_active;
-        this.toastService.success(`Boutique ${shop.is_active ? 'activée' : 'désactivée'} avec succès`);
+        this.toastService.success(`Boutique ${!shop.is_active ? 'activée' : 'désactivée'} avec succès`);
+        // Recharger la liste pour avoir les données à jour
+        this.loadShops();
       },
       error: (error) => {
         this.toastService.error('Erreur lors de la mise à jour du statut');

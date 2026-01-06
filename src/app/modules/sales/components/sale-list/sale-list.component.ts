@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter, Subscription } from 'rxjs';
 import { CurrencyFormatPipe } from '../../../../shared/pipes/currency-format.pipe';
 import { SaleService, Sale } from '../../../../core/services/sale.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -15,7 +16,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
   templateUrl: './sale-list.component.html',
   styleUrl: './sale-list.component.css'
 })
-export class SaleListComponent implements OnInit {
+export class SaleListComponent implements OnInit, OnDestroy {
   sales: Sale[] = [];
   filteredSales: Sale[] = [];
   displayedSales: Sale[] = [];
@@ -31,7 +32,10 @@ export class SaleListComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 1;
 
+  private routerSubscription?: Subscription;
+
   constructor(
+    private router: Router,
     private saleService: SaleService,
     private shopService: ShopService,
     private authService: AuthService
@@ -40,6 +44,21 @@ export class SaleListComponent implements OnInit {
   ngOnInit() {
     this.loadShops();
     this.loadSales();
+    
+    // Recharger les données quand on revient sur cette route
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/sales' || event.url.startsWith('/sales?')) {
+          this.loadSales();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   loadShops() {

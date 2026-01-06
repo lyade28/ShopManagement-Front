@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter, Subscription } from 'rxjs';
 import { UserService } from '../../../../core/services/user.service';
 import { User } from '../../../../core/services/auth.service';
 import { ShopService, Shop } from '../../../../core/services/shop.service';
@@ -16,7 +17,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.css'
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent implements OnInit, OnDestroy {
   users: User[] = [];
   filteredUsers: User[] = [];
   displayedUsers: User[] = [];
@@ -34,7 +35,10 @@ export class UserListComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 1;
 
+  private routerSubscription?: Subscription;
+
   constructor(
+    private router: Router,
     private userService: UserService,
     private shopService: ShopService,
     private toastService: ToastService,
@@ -44,6 +48,21 @@ export class UserListComponent implements OnInit {
   ngOnInit() {
     this.loadShops();
     this.loadUsers();
+    
+    // Recharger les données quand on revient sur cette route
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/users' || event.url.startsWith('/users?')) {
+          this.loadUsers();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   loadShops() {
@@ -165,7 +184,9 @@ export class UserListComponent implements OnInit {
     const newStatus = !user.is_active;
     this.userService.updateUser(user.id, { is_active: newStatus }).subscribe({
       next: () => {
-        user.is_active = newStatus;
+        this.toastService.success(`Statut ${newStatus ? 'activé' : 'désactivé'} avec succès`);
+        // Recharger la liste pour avoir les données à jour
+        this.loadUsers();
       },
       error: (error) => {
         this.toastService.error('Erreur lors de la mise à jour du statut');

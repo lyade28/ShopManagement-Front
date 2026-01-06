@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter, Subscription } from 'rxjs';
 import { CurrencyFormatPipe } from '../../../../shared/pipes/currency-format.pipe';
 import { AnalyticsService, AnalyticsResponse } from '../../../../core/services/analytics.service';
 import { ShopService, Shop } from '../../../../core/services/shop.service';
@@ -26,7 +28,7 @@ interface TopProduct {
   templateUrl: './sales-analytics.component.html',
   styleUrl: './sales-analytics.component.css'
 })
-export class SalesAnalyticsComponent implements OnInit {
+export class SalesAnalyticsComponent implements OnInit, OnDestroy {
   period: 'day' | 'week' | 'month' = 'month';
   shopFilter: 'all' | number = 'all';
   shops: Shop[] = [];
@@ -34,7 +36,10 @@ export class SalesAnalyticsComponent implements OnInit {
   topProducts: TopProduct[] = [];
   isLoading = false;
 
+  private routerSubscription?: Subscription;
+
   constructor(
+    private router: Router,
     private analyticsService: AnalyticsService,
     private shopService: ShopService,
     private authService: AuthService
@@ -43,6 +48,21 @@ export class SalesAnalyticsComponent implements OnInit {
   ngOnInit() {
     this.loadShops();
     this.loadAnalytics();
+    
+    // Recharger les données quand on revient sur cette route
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/analytics' || event.url.startsWith('/analytics?')) {
+          this.loadAnalytics();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   loadShops() {

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter, Subscription } from 'rxjs';
 import { ProductService, Category } from '../../../../core/services/product.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ConfirmationService } from '../../../../core/services/confirmation.service';
@@ -14,7 +15,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
   templateUrl: './category-list.component.html',
   styleUrl: './category-list.component.css'
 })
-export class CategoryListComponent implements OnInit {
+export class CategoryListComponent implements OnInit, OnDestroy {
   categories: Category[] = [];
   filteredCategories: Category[] = [];
   displayedCategories: Category[] = [];
@@ -27,7 +28,10 @@ export class CategoryListComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 1;
 
+  private routerSubscription?: Subscription;
+
   constructor(
+    private router: Router,
     private productService: ProductService,
     private toastService: ToastService,
     private confirmationService: ConfirmationService
@@ -51,6 +55,21 @@ export class CategoryListComponent implements OnInit {
 
   ngOnInit() {
     this.loadCategories();
+    
+    // Recharger les données quand on revient sur cette route
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/settings/categories' || event.url.startsWith('/settings/categories?')) {
+          this.loadCategories();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   loadCategories() {
@@ -150,9 +169,10 @@ export class CategoryListComponent implements OnInit {
     const newStatus = !category.is_active;
     this.productService.updateCategory(category.id, { is_active: newStatus }).subscribe({
       next: (updatedCategory) => {
-        category.is_active = updatedCategory.is_active;
         const statusText = updatedCategory.is_active ? 'activée' : 'désactivée';
         this.toastService.success(`Catégorie ${statusText} avec succès !`);
+        // Recharger la liste pour avoir les données à jour
+        this.loadCategories();
       },
       error: (error) => {
         this.toastService.error('Erreur lors de la mise à jour du statut');

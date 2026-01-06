@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter, Subscription } from 'rxjs';
 import { InventoryService, Inventory } from '../../../../core/services/inventory.service';
 import { ShopService, Shop } from '../../../../core/services/shop.service';
 import { ProductService } from '../../../../core/services/product.service';
@@ -17,7 +18,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
   templateUrl: './inventory-list.component.html',
   styleUrl: './inventory-list.component.css'
 })
-export class InventoryListComponent implements OnInit {
+export class InventoryListComponent implements OnInit, OnDestroy {
   inventories: Inventory[] = [];
   filteredInventories: Inventory[] = [];
   displayedInventories: Inventory[] = [];
@@ -42,12 +43,15 @@ export class InventoryListComponent implements OnInit {
   lowStockCount = 0;
   outOfStockCount = 0;
 
+  private routerSubscription?: Subscription;
+
   constructor(
+    private router: Router,
     private inventoryService: InventoryService,
     private shopService: ShopService,
     private productService: ProductService,
     private authService: AuthService,
-    private route: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
     private toastService: ToastService
   ) {}
 
@@ -57,13 +61,28 @@ export class InventoryListComponent implements OnInit {
     this.loadInventories();
     
     // Filtrer par produit si queryParam présent
-    this.route.queryParams.subscribe(params => {
+    this.activatedRoute.queryParams.subscribe(params => {
       if (params['product']) {
         // Filtrer l'inventaire par produit
         this.searchTerm = '';
         // Le filtre sera appliqué dans applyFilters
       }
     });
+    
+    // Recharger les données quand on revient sur cette route
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/inventory' || event.url.startsWith('/inventory?')) {
+          this.loadInventories();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   loadCategories() {
@@ -146,7 +165,7 @@ export class InventoryListComponent implements OnInit {
 
   applyFilters() {
     // Récupérer le filtre produit depuis les queryParams
-    const productId = this.route.snapshot.queryParams['product'];
+    const productId = this.activatedRoute.snapshot.queryParams['product'];
     
     this.filteredInventories = this.inventories.filter(inv => {
       // Filtrer par produit si queryParam présent

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter, Subscription } from 'rxjs';
 import { CurrencyFormatPipe } from '../../../../shared/pipes/currency-format.pipe';
 import { InvoiceService, Invoice } from '../../../../core/services/invoice.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -14,7 +15,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
   templateUrl: './invoice-list.component.html',
   styleUrl: './invoice-list.component.css'
 })
-export class InvoiceListComponent implements OnInit {
+export class InvoiceListComponent implements OnInit, OnDestroy {
   invoices: Invoice[] = [];
   filteredInvoices: Invoice[] = [];
   displayedInvoices: Invoice[] = [];
@@ -28,13 +29,31 @@ export class InvoiceListComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 1;
 
+  private routerSubscription?: Subscription;
+
   constructor(
+    private router: Router,
     private invoiceService: InvoiceService,
     private authService: AuthService
   ) {}
 
   ngOnInit() {
     this.loadInvoices();
+    
+    // Recharger les données quand on revient sur cette route
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/invoices' || event.url.startsWith('/invoices?')) {
+          this.loadInvoices();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   loadInvoices() {

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter, Subscription } from 'rxjs';
 import { SaleService, SaleSession } from '../../../../core/services/sale.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -15,7 +16,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
   templateUrl: './sale-session-list.component.html',
   styleUrl: './sale-session-list.component.css'
 })
-export class SaleSessionListComponent implements OnInit {
+export class SaleSessionListComponent implements OnInit, OnDestroy {
   sessions: SaleSession[] = [];
   filteredSessions: SaleSession[] = [];
   displayedSessions: SaleSession[] = [];
@@ -28,6 +29,8 @@ export class SaleSessionListComponent implements OnInit {
   pageSize: number = 10;
   totalItems: number = 0;
   totalPages: number = 1;
+
+  private routerSubscription?: Subscription;
   
   // Statistiques
   get totalSessions(): number {
@@ -47,6 +50,7 @@ export class SaleSessionListComponent implements OnInit {
   }
 
   constructor(
+    private router: Router,
     private saleService: SaleService,
     private authService: AuthService,
     private toastService: ToastService,
@@ -55,6 +59,21 @@ export class SaleSessionListComponent implements OnInit {
 
   ngOnInit() {
     this.loadSessions();
+    
+    // Recharger les données quand on revient sur cette route
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/sales/sessions' || event.url.startsWith('/sales/sessions?')) {
+          this.loadSessions();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   loadSessions() {
