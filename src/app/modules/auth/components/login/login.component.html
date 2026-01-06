@@ -1,28 +1,64 @@
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
+      <div class="logo-container">
+        <i class="bi bi-shop logo-icon"></i>
+      </div>
       <h1>Connexion</h1>
-      <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <p class="subtitle">Connectez-vous à votre compte</p>
+      <p *ngIf="errorMessage" class="error-message">
+        <i class="bi bi-exclamation-circle"></i>
+        {{ errorMessage }}
+      </p>
     </div>
 
-    <form (ngSubmit)="onSubmit()">
+    <form (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">
-        <label for="username">Nom d'utilisateur</label>
+        <label for="username">
+          <i class="bi bi-person label-icon"></i>
+          Nom d'utilisateur
+        </label>
         <div class="input-wrapper">
-          <i class="bi bi-person"></i>
-          <input type="text" id="username" [(ngModel)]="credentials.username" name="username" class="form-input"
-            placeholder="Entrez votre nom d'utilisateur" autocomplete="username" required [disabled]="isLoading" />
+          <i class="bi bi-person input-icon"></i>
+          <input 
+            type="text" 
+            id="username" 
+            [(ngModel)]="credentials.username" 
+            name="username" 
+            class="form-input"
+            placeholder="Entrez votre nom d'utilisateur" 
+            autocomplete="username" 
+            required 
+            [disabled]="isLoading" 
+          />
         </div>
       </div>
 
       <div class="form-group">
-        <label for="password">Mot de passe</label>
+        <label for="password">
+          <i class="bi bi-lock label-icon"></i>
+          Mot de passe
+        </label>
         <div class="input-wrapper">
-          <i class="bi bi-lock"></i>
-          <input [type]="showPassword ? 'text' : 'password'" id="password" [(ngModel)]="credentials.password"
-            name="password" class="form-input" placeholder="Entrez votre mot de passe" autocomplete="current-password"
-            required [disabled]="isLoading" />
-          <button type="button" class="password-toggle" (click)="togglePasswordVisibility()" [disabled]="isLoading">
+          <i class="bi bi-lock input-icon"></i>
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            id="password" 
+            [(ngModel)]="credentials.password"
+            name="password" 
+            class="form-input" 
+            placeholder="Entrez votre mot de passe" 
+            autocomplete="current-password"
+            required 
+            [disabled]="isLoading" 
+          />
+          <button 
+            type="button" 
+            class="password-toggle" 
+            (click)="togglePasswordVisibility()" 
+            [disabled]="isLoading"
+            [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+          >
             <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
           </button>
         </div>
@@ -30,23 +66,35 @@
 
       <div class="form-options">
         <label class="remember-me">
-          <input type="checkbox" name="remember" />
+          <input type="checkbox" name="remember" id="remember" />
           <span>Se souvenir de moi</span>
         </label>
-        <a routerLink="/auth/forgot-password" class="forgot-password">Mot de passe oublié ?</a>
+        <a routerLink="/auth/forgot-password" class="forgot-password">
+          <i class="bi bi-question-circle"></i>
+          Mot de passe oublié ?
+        </a>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block" [disabled]="isLoading">
-        <span *ngIf="!isLoading">Se connecter</span>
-        <span *ngIf="isLoading" class="loading">
+        <span *ngIf="!isLoading" class="btn-content">
+          <i class="bi bi-box-arrow-in-right"></i>
+          Se connecter
+        </span>
+        <span *ngIf="isLoading" class="btn-content loading">
           <i class="bi bi-arrow-repeat spinner-icon"></i>
-          Connexion...
+          Connexion en cours...
         </span>
       </button>
     </form>
 
     <div class="auth-footer">
-      <p>Vous n'avez pas de compte ? <a routerLink="/auth/register">Créer un compte</a></p>
+      <p>
+        Vous n'avez pas de compte ? 
+        <a routerLink="/auth/register">
+          <i class="bi bi-person-plus"></i>
+          Créer un compte
+        </a>
+      </p>
     </div>
   </div>
 </div>

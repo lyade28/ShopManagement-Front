@@ -48,10 +48,19 @@
   margin-bottom: 2.5rem;
 }
 
-.logo {
-  margin-bottom: 1.5rem;
+.logo-container {
   display: flex;
   justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.logo-icon {
+  font-size: 3.5rem;
+  color: var(--primary);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .auth-header h1 {
@@ -63,7 +72,8 @@
 
 .subtitle {
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
 }
 
 .auth-form {
@@ -75,14 +85,21 @@
 .error-message {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   padding: 1rem;
+  margin-top: 1rem;
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 10px;
   color: var(--error);
   font-size: 0.875rem;
   animation: slideIn 0.3s ease-out;
+}
+
+.error-message i {
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 @keyframes slideIn {
@@ -103,23 +120,35 @@
 }
 
 label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.label-icon {
+  font-size: 1rem;
+  color: var(--text-muted);
 }
 
 .input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
-.input-wrapper svg:first-child {
+.input-icon {
   position: absolute;
   left: 1rem;
   color: var(--text-muted);
-  z-index: 1;
+  font-size: 1.1rem;
+  z-index: 2;
   pointer-events: none;
+  transition: color var(--transition-base);
 }
 
 .form-input {
@@ -134,10 +163,20 @@ label {
   font-family: inherit;
 }
 
+/* Padding supplémentaire pour le champ password avec le bouton toggle */
+.input-wrapper:has(.password-toggle) .form-input {
+  padding-right: 3rem;
+}
+
 .form-input:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.form-input:focus + .input-icon,
+.input-wrapper:focus-within .input-icon {
+  color: var(--primary);
 }
 
 .form-input:disabled {
@@ -155,9 +194,16 @@ label {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
+  padding: 0.5rem;
   transition: color var(--transition-base);
-  z-index: 1;
+  z-index: 2;
+  font-size: 1.1rem;
+  border-radius: 6px;
+}
+
+.password-toggle:hover:not(:disabled) {
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.1);
 }
 
 .password-toggle:hover:not(:disabled) {
@@ -174,6 +220,8 @@ label {
   justify-content: space-between;
   align-items: center;
   font-size: 0.875rem;
+  margin-top: 0.5rem;
+  gap: 1rem;
 }
 
 .remember-me {
@@ -192,10 +240,18 @@ label {
 }
 
 .forgot-password {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
   color: var(--primary);
   text-decoration: none;
   font-weight: 500;
   transition: color var(--transition-base);
+  white-space: nowrap;
+}
+
+.forgot-password i {
+  font-size: 0.9rem;
 }
 
 .forgot-password:hover {
@@ -210,6 +266,13 @@ label {
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .loading {
@@ -258,10 +321,18 @@ label {
 }
 
 .auth-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   color: var(--primary);
   text-decoration: none;
   font-weight: 500;
   transition: color var(--transition-base);
+  margin-left: 0.25rem;
+}
+
+.auth-footer a i {
+  font-size: 0.9rem;
 }
 
 .auth-footer a:hover {

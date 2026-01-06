@@ -1,45 +1,67 @@
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
+      <div class="logo-container">
+        <i class="bi bi-shop logo-icon"></i>
+      </div>
       <h1>Créer un compte</h1>
-      <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <p class="subtitle">Rejoignez-nous et commencez à gérer votre boutique</p>
+      <p *ngIf="errorMessage" class="error-message">
+        <i class="bi bi-exclamation-circle"></i>
+        {{ errorMessage }}
+      </p>
     </div>
 
-    <form (ngSubmit)="onSubmit()">
+    <form (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-row">
         <div class="form-group">
-          <label for="first_name">Prénom *</label>
-          <input 
-            type="text" 
-            id="first_name" 
-            [(ngModel)]="form.first_name" 
-            name="first_name"
-            class="form-input"
-            placeholder="Prénom"
-            required
-            [disabled]="isLoading"
-          />
+          <label for="first_name">
+            <i class="bi bi-person label-icon"></i>
+            Prénom *
+          </label>
+          <div class="input-wrapper">
+            <i class="bi bi-person input-icon"></i>
+            <input 
+              type="text" 
+              id="first_name" 
+              [(ngModel)]="form.first_name" 
+              name="first_name"
+              class="form-input"
+              placeholder="Prénom"
+              required
+              [disabled]="isLoading"
+            />
+          </div>
         </div>
 
         <div class="form-group">
-          <label for="last_name">Nom *</label>
-          <input 
-            type="text" 
-            id="last_name" 
-            [(ngModel)]="form.last_name" 
-            name="last_name"
-            class="form-input"
-            placeholder="Nom"
-            required
-            [disabled]="isLoading"
-          />
+          <label for="last_name">
+            <i class="bi bi-person label-icon"></i>
+            Nom *
+          </label>
+          <div class="input-wrapper">
+            <i class="bi bi-person input-icon"></i>
+            <input 
+              type="text" 
+              id="last_name" 
+              [(ngModel)]="form.last_name" 
+              name="last_name"
+              class="form-input"
+              placeholder="Nom"
+              required
+              [disabled]="isLoading"
+            />
+          </div>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="username">Nom d'utilisateur *</label>
+        <label for="username">
+          <i class="bi bi-at label-icon"></i>
+          Nom d'utilisateur *
+        </label>
         <div class="input-wrapper">
-          <i class="bi bi-person"></i>
+          <i class="bi bi-at input-icon"></i>
           <input 
             type="text" 
             id="username" 
@@ -54,9 +76,12 @@
       </div>
 
       <div class="form-group">
-        <label for="email">Email *</label>
+        <label for="email">
+          <i class="bi bi-envelope label-icon"></i>
+          Email *
+        </label>
         <div class="input-wrapper">
-          <i class="bi bi-envelope"></i>
+          <i class="bi bi-envelope input-icon"></i>
           <input 
             type="email" 
             id="email" 
@@ -71,25 +96,31 @@
       </div>
 
       <div class="form-group">
-        <label for="phone">Téléphone</label>
+        <label for="phone">
+          <i class="bi bi-telephone label-icon"></i>
+          Téléphone
+        </label>
         <div class="input-wrapper">
-          <i class="bi bi-telephone"></i>
+          <i class="bi bi-telephone input-icon"></i>
           <input 
             type="tel" 
             id="phone" 
             [(ngModel)]="form.phone" 
             name="phone"
             class="form-input"
-            placeholder="Téléphone"
+            placeholder="Téléphone (optionnel)"
             [disabled]="isLoading"
           />
         </div>
       </div>
 
       <div class="form-group">
-        <label for="password">Mot de passe *</label>
+        <label for="password">
+          <i class="bi bi-lock label-icon"></i>
+          Mot de passe *
+        </label>
         <div class="input-wrapper">
-          <i class="bi bi-lock"></i>
+          <i class="bi bi-lock input-icon"></i>
           <input 
             [type]="showPassword ? 'text' : 'password'" 
             id="password" 
@@ -105,6 +136,7 @@
             class="password-toggle"
             (click)="togglePasswordVisibility()"
             [disabled]="isLoading"
+            [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
           >
             <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
           </button>
@@ -112,9 +144,12 @@
       </div>
 
       <div class="form-group">
-        <label for="password_confirm">Confirmer le mot de passe *</label>
+        <label for="password_confirm">
+          <i class="bi bi-lock-fill label-icon"></i>
+          Confirmer le mot de passe *
+        </label>
         <div class="input-wrapper">
-          <i class="bi bi-lock"></i>
+          <i class="bi bi-lock-fill input-icon"></i>
           <input 
             [type]="showPasswordConfirm ? 'text' : 'password'" 
             id="password_confirm" 
@@ -130,6 +165,7 @@
             class="password-toggle"
             (click)="togglePasswordConfirmVisibility()"
             [disabled]="isLoading"
+            [attr.aria-label]="showPasswordConfirm ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
           >
             <i class="bi" [class.bi-eye]="!showPasswordConfirm" [class.bi-eye-slash]="showPasswordConfirm"></i>
           </button>
@@ -137,32 +173,44 @@
       </div>
 
       <div class="form-group">
-        <label for="role">Rôle *</label>
-        <select 
-          id="role" 
-          [(ngModel)]="form.role" 
-          name="role"
-          class="form-input"
-          required
-          [disabled]="isLoading"
-        >
-          <option value="seller">Vendeur</option>
-          <option value="admin">Administrateur</option>
-        </select>
+        <label for="role">
+          <i class="bi bi-person-badge label-icon"></i>
+          Rôle *
+        </label>
+        <div class="input-wrapper">
+          <i class="bi bi-person-badge input-icon"></i>
+          <select 
+            id="role" 
+            [(ngModel)]="form.role" 
+            name="role"
+            class="form-input form-select"
+            required
+            [disabled]="isLoading"
+          >
+            <option value="seller">Vendeur</option>
+            <option value="admin">Administrateur</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-group" *ngIf="form.role === 'seller' && shops.length > 0">
-        <label for="shop_id">Boutique</label>
-        <select 
-          id="shop_id" 
-          [(ngModel)]="form.shop_id" 
-          name="shop_id"
-          class="form-input"
-          [disabled]="isLoading"
-        >
-          <option [value]="null">Sélectionner une boutique</option>
-          <option *ngFor="let shop of shops" [value]="shop.id">{{ shop.name }}</option>
-        </select>
+        <label for="shop_id">
+          <i class="bi bi-shop label-icon"></i>
+          Boutique
+        </label>
+        <div class="input-wrapper">
+          <i class="bi bi-shop input-icon"></i>
+          <select 
+            id="shop_id" 
+            [(ngModel)]="form.shop_id" 
+            name="shop_id"
+            class="form-input form-select"
+            [disabled]="isLoading"
+          >
+            <option [value]="null">Sélectionner une boutique</option>
+            <option *ngFor="let shop of shops" [value]="shop.id">{{ shop.name }}</option>
+          </select>
+        </div>
       </div>
 
       <button 
@@ -170,16 +218,25 @@
         class="btn btn-primary btn-block"
         [disabled]="isLoading || !isFormValid()"
       >
-        <span *ngIf="!isLoading">Créer le compte</span>
-        <span *ngIf="isLoading" class="loading">
+        <span *ngIf="!isLoading" class="btn-content">
+          <i class="bi bi-person-plus"></i>
+          Créer le compte
+        </span>
+        <span *ngIf="isLoading" class="btn-content loading">
           <i class="bi bi-arrow-repeat spinner-icon"></i>
-          Création...
+          Création en cours...
         </span>
       </button>
     </form>
 
     <div class="auth-footer">
-      <p>Vous avez déjà un compte ? <a routerLink="/auth/login">Se connecter</a></p>
+      <p>
+        Vous avez déjà un compte ? 
+        <a routerLink="/auth/login">
+          <i class="bi bi-box-arrow-in-right"></i>
+          Se connecter
+        </a>
+      </p>
     </div>
   </div>
 </div>

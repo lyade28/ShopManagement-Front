@@ -11,7 +11,7 @@
 
   <nav class="sidebar-nav">
     <ul class="nav-list">
-      <li *ngFor="let item of menuItems" class="nav-item">
+      <li *ngFor="let item of filteredMenuItems" class="nav-item">
         <a 
           [routerLink]="item.route" 
           routerLinkActive="active"
@@ -29,14 +29,14 @@
     </ul>
   </nav>
 
-  <div class="sidebar-footer" *ngIf="!isCollapsed">
+  <div class="sidebar-footer" *ngIf="!isCollapsed && currentUser">
     <div class="user-info">
       <div class="user-avatar">
         <i class="bi bi-person-circle"></i>
       </div>
       <div class="user-details">
-        <div class="user-name">Admin User</div>
-        <div class="user-role">Administrateur</div>
+        <div class="user-name">{{ currentUser.first_name && currentUser.last_name ? (currentUser.first_name + ' ' + currentUser.last_name) : currentUser.username }}</div>
+        <div class="user-role">{{ currentUser.role === 'admin' ? 'Administrateur' : 'Vendeur' }}</div>
       </div>
     </div>
   </div>
